@@ -47,8 +47,14 @@ $mvc->classname = $mvc->controller.'Controller';
 /* instantiate it */
 $controller = new $mvc->classname();
 
-/* call the method - will throw an error you must catch if it's not there */
-echo call_user_func_array(array($controller,$mvc->method.$mvc->request.$mvc->is_ajax.'Action'),$mvc->segs);
+$method = $mvc->method.$mvc->request.$mvc->is_ajax.'Action';
+
+if (method_exists($controller, $method)) {
+	/* call the method - will throw an error you must catch if it's not there */
+	echo call_user_func_array(array($controller,),$mvc->segs);
+} else {
+	mvc_die_error("Method %s Not Found",$method);	
+}
 
 /* give me a reference to the global service locator */
 function mvc() {
@@ -67,7 +73,7 @@ function mvc_autoloader($name) {
 		require_once($filename);
 	} else {
 		/* simple error and exit */
-		die("File $name Not Found");
+		mvc_die_error("File %s Not Found",$name);	
 	}
 }
 
@@ -93,8 +99,17 @@ function mvc_view($_mvc_view_name,$_mvc_view_data=array()) {
 	} else {
 
 		/* if not found die with some info */
-		die("View File $_mvc_view_name Not Found");
+		mvc_die_error("View File %s Not Found",$_mvc_view_file);	
 	}
+}
+
+/* single die method */
+function mvc_die_error($string,$replace) {
+	/* don't show to much unless env var = DEBUG */
+	$replace = (getenv('RUNCODE') == 'DEBUG') ? $replace : '';
+
+	/* show our error and die */
+	die(sprintf($string,$replace));
 }
 
 /* redirect - cuz you always need one */

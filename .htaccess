@@ -1,3 +1,5 @@
+SetEnv RUNCODE DEBUG
+
 RewriteEngine On
 
 RewriteBase /
