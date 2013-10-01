@@ -67,30 +67,41 @@ function mvc_autoloader($name) {
 		require_once($filename);
 	} else {
 		/* simple error and exit */
-		die('File Not Found');	
+		die("File $name Not Found");
 	}
 }
 
 /* auto load view and extract view data */
 function mvc_view($_mvc_view_name,$_mvc_view_data=array()) {
-	/* extract out view data and make it in scope */
-	extract($_mvc_view_data);
-	
-	/* start output cache */
-	ob_start();
-	
-	/* load in view (which now has access to the in scope view data */
-	require(mvc()->app.'/views/'.$_mvc_view_name.'.php');
-	
-	/* capture cache and return */
-	return ob_get_clean();
+	/* what file we looking for? */
+	$_mvc_view_file = mvc()->app.'/views/'.$_mvc_view_name.'.php';
+
+	/* is it there? if not return nothing */
+	if (file_exists($_mvc_view_file)) {
+		/* extract out view data and make it in scope */
+		extract($_mvc_view_data);
+
+		/* start output cache */
+		ob_start();
+
+		/* load in view (which now has access to the in scope view data */
+		require($_mvc_view_file);
+
+		/* capture cache and return */
+		return ob_get_clean();
+
+	} else {
+
+		/* if not found die with some info */
+		die("View File $_mvc_view_name Not Found");
+	}
 }
 
 /* redirect - cuz you always need one */
 function redirect($url='/') {
 	/* send redirect header */
 	header("Location: $url");
-	
+
 	/* exit */
 	exit;
 }
