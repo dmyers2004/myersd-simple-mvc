@@ -3,8 +3,18 @@
 /* setup a native class object to act as a service locator */
 $mvc = new stdclass();
 
+/* get the run code from the htaccess file */
+$mvc->run_code = getenv('RUNCODE');
+
 /* Defaults to no errors displayed */
-ini_set('display_errors','Off');
+error_reporting(E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT);
+ini_set('display_errors', 0);
+
+/* if it's DEBUG then turn the error display on */
+if ($mvc->run_code == 'DEBUG') {
+	error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
+	ini_set('display_errors', 1);
+}
 
 /* start session */
 session_start();
@@ -47,12 +57,15 @@ $mvc->classname = $mvc->controller.'Controller';
 /* instantiate it */
 $controller = new $mvc->classname();
 
+/* what method are we going to try to call? */
 $method = $mvc->method.$mvc->request.$mvc->is_ajax.'Action';
 
+/* does that method even exist? */
 if (method_exists($controller, $method)) {
-	/* call the method - will throw an error you must catch if it's not there */
-	echo call_user_func_array(array($controller,),$mvc->segs);
+	/* call the method and echo what's returned */
+	echo call_user_func_array(array($controller,$method),$mvc->segs);
 } else {
+	/* if the method isn't there die gracefully */
 	mvc_die_error("Method %s Not Found",$method);	
 }
 
@@ -106,7 +119,7 @@ function mvc_view($_mvc_view_name,$_mvc_view_data=array()) {
 /* single die method */
 function mvc_die_error($string,$replace) {
 	/* don't show to much unless env var = DEBUG */
-	$replace = (getenv('RUNCODE') == 'DEBUG') ? $replace : '';
+	$replace = (mvc()->run_code == 'DEBUG') ? $replace : '';
 
 	/* show our error and die */
 	die(sprintf($string,$replace));
