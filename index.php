@@ -93,7 +93,7 @@ function mvc_autoloader($name) {
 /* auto load view and extract view data */
 function mvc_view($_mvc_view_name,$_mvc_view_data=array()) {
 	/* what file we looking for? */
-	$_mvc_view_file = mvc()->app.'/views/'.$_mvc_view_name.'.php';
+	$_mvc_view_file = mvc()->app.'views/'.$_mvc_view_name.'.php';
 
 	/* is it there? if not return nothing */
 	if (file_exists($_mvc_view_file)) {
