@@ -78,7 +78,7 @@ function mvc() {
 /* class autoloader */
 function mvc_autoloader($name) {
 	/* autoload controllers or libraries */
-	$filename = mvc()->app.'/'.((substr($name,-10) != 'Controller') ? 'libraries' : 'controllers').'/'.strtolower($name).'.php';
+	$filename = mvc()->app.((substr($name,-10) != 'Controller') ? 'libraries' : 'controllers').'/'.$name.'.php';
 
 	/* is the file their? */
 	if (file_exists($filename)) {
