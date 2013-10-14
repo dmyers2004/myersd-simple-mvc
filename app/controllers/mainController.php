@@ -7,6 +7,7 @@ class mainController {
 		
 		echo '<pre>';
 		var_dump(mvc());
+		echo '</pre>';
 		
 		return mvc_view('welcome',$data);
 	}
