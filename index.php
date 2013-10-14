@@ -58,15 +58,15 @@ $mvc->classname = $mvc->controller.'Controller';
 $controller = new $mvc->classname();
 
 /* what method are we going to try to call? */
-$method = $mvc->method.$mvc->request.$mvc->is_ajax.'Action';
+$mvc->called = $mvc->method.$mvc->request.$mvc->is_ajax.'Action';
 
 /* does that method even exist? */
-if (method_exists($controller, $method)) {
+if (method_exists($controller, $mvc->called)) {
 	/* call the method and echo what's returned */
-	echo call_user_func_array(array($controller,$method),$mvc->segs);
+	echo call_user_func_array(array($controller,$mvc->called),$mvc->segs);
 } else {
 	/* if the method isn't there die gracefully */
-	mvc_die_error("Method %s Not Found",$method);	
+	mvc_die_error("Method %s Not Found",$mvc->called);	
 }
 
 /* give me a reference to the global service locator */
