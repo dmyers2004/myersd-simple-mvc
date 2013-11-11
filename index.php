@@ -38,8 +38,10 @@ $mvc->base_url = trim('http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_N
 $mvc->raw_request = ucfirst(strtolower($_SERVER['REQUEST_METHOD']));
 $mvc->request = ($mvc->raw_request == 'Get') ? '' : $mvc->raw_request;
 
-/* Put ANY (POST, PUT, DELETE) posted into into $_POST */
-parse_str(file_get_contents('php://input'), $_POST);
+/* Put PUT posted into into $_POST */
+if ($mvc->raw_request == 'Put') {
+	parse_str(file_get_contents('php://input'), $_POST);
+}
 
 /* get the uri (uniform resource identifier) */
 $mvc->uri = $mvc->raw_uri = trim(urldecode(substr(parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH),strlen(dirname($_SERVER['SCRIPT_NAME'])))),'/');
