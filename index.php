@@ -3,6 +3,9 @@
 /* setup a native class object to act as a service locator */
 $mvc = new stdclass();
 
+/* set this up so PHP doesn't complain */
+date_default_timezone_set('America/New_York');
+
 /* get the run code from the htaccess file */
 $mvc->run_code = getenv('RUNCODE');
 
@@ -26,7 +29,7 @@ $mvc->path = __DIR__;
 $mvc->app = $mvc->path.'/app/';
 
 /* register the autoloader */
-spl_autoload_register('mvc_autoloader');
+spl_autoload_register('mvc_load');
 
 /* is this a ajax request? */
 $mvc->is_ajax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ? 'Ajax' : false;
@@ -68,7 +71,7 @@ if (method_exists($controller, $mvc->called)) {
 	echo call_user_func_array(array($controller,$mvc->called),$mvc->segs);
 } else {
 	/* if the method isn't there die gracefully */
-	mvc_die_error("Method %s Not Found",$mvc->called);	
+	mvc_die_error('Method '.$mvc->called.' Not Found');	
 }
 
 /* give me a reference to the global service locator */
@@ -78,9 +81,18 @@ function mvc() {
 }
 
 /* class autoloader */
-function mvc_autoloader($name) {
-	/* autoload controllers or libraries */
-	$filename = mvc()->app.((substr($name,-10) != 'Controller') ? 'libraries' : 'controllers').'/'.$name.'.php';
+function mvc_load($name,$folder=null) {
+	if (!$folder) {
+		$folder = 'libraries';
+		
+		if (substr($name,-5) == 'model') {
+			$folder = 'models';
+		} elseif (substr($name,-10) == 'Controller') {
+			$folder = 'controllers';
+		}
+	}
+
+	$filename = mvc()->app.$folder.'/'.$name.'.php';
 
 	/* is the file their? */
 	if (file_exists($filename)) {
@@ -88,7 +100,7 @@ function mvc_autoloader($name) {
 		require_once($filename);
 	} else {
 		/* simple error and exit */
-		mvc_die_error("File %s Not Found",$name);	
+		mvc_die_error('File '.$name.' Not Found');	
 	}
 }
 
@@ -114,17 +126,20 @@ function mvc_view($_mvc_view_name,$_mvc_view_data=array()) {
 	} else {
 
 		/* if not found die with some info */
-		mvc_die_error("View File %s Not Found",$_mvc_view_file);	
+		mvc_die_error('View File '.$_mvc_view_file.' Not Found');	
 	}
 }
 
 /* single die method */
-function mvc_die_error($string,$replace) {
-	/* don't show to much unless env var = DEBUG */
-	$replace = (mvc()->run_code == 'DEBUG') ? $replace : '';
-
-	/* show our error and die */
-	die(sprintf($string,$replace));
+function mvc_die_error($str) {
+	if (mvc()->run_code == 'DEBUG') {
+		/* show our error and die */
+		die($str);
+	} else {
+		/* log it?? */
+		
+		redirect('/');		
+	}
 }
 
 /* redirect - cuz you always need one */
