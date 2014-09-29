@@ -1,18 +1,14 @@
 <?php
-require 'common.php';
+require 'mvc.php';
 
 /* setup a native class object to act as a service locator */
 $app = new mvc();
-
-/* set this up so PHP doesn't complain */
-date_default_timezone_set('America/New_York');
 
 /* send the config */
 $config = [
 	'runcode'=>getenv('RUNCODE'),
 	'path'=>__DIR__,
 	'app_path'=>__DIR__.'/app/',
-	'session_id'=>'woody',
 	'server'=>$_SERVER,
 	'post'=>$_POST,
 	'get'=>$_GET,

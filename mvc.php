@@ -1,6 +1,7 @@
 <?php
 
 class File_Not_Found_Exception extends Exception { }
+class Controller_Not_Found_Exception extends Exception { }
 class Method_Not_Found_Exception extends Exception { }
 class View_Not_Found_Exception extends Exception { }
 
@@ -11,18 +12,21 @@ function mvc() {
 }
 
 class mvc {
+	public $put = [];
+
 	public function route($config) {
-		/* setup the runcode */
-		$this->run_code = $config['runcode'];
-		
-		/* setup config variables */
-		$this->post = $config['post'];
-		$this->get = $config['get'];
-		$this->cookies = $config['cookies'];
-		$this->env = $config['env'];
-		$this->files = $config['files'];
-		$this->request = $config['request'];
-		$this->put = [];
+		/* now required by PHP */
+		if (!ini_get('date.timezone')) {
+			/* if date.timezone not set in php.ini or not sent in config date_timezone use UTC */
+			$tz = ($config['date_timezone']) ? $config['date_timezone'] : 'UTC';
+
+			date_default_timezone_set($tz);
+		}
+
+		/* attach all of the config variables to $app */
+		foreach ($config as $key=>$value) {
+			$this->$key = $value;
+		}
 
 		/* Defaults to no errors displayed */
 		error_reporting(E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT);
@@ -34,16 +38,14 @@ class mvc {
 			ini_set('display_errors', 1);
 		}
 
+		/* make sure the session name starts with a letter */
+		session_name('s'.substr(md5($this->app_path),0,16));
+
 		/* start session */
-		session_id($config['session_id']);
 		session_start();
+
+		/* capture any session variables */
 		$this->session = &$_SESSION;
-
-		/* Where is this bootstrap file */
-		$this->path = $config['path'];
-
-		/* app path */
-		$this->app = $config['app_path'];
 
 		/* register the autoloader */
 		spl_autoload_register([$this,'load']);
@@ -52,34 +54,38 @@ class mvc {
 		set_exception_handler($config['exception_error_handler']);
 
 		/* is this a ajax request? */
-		$this->is_ajax = (isset($config['server']['HTTP_X_REQUESTED_WITH']) && strtolower($config['server']['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ? 'Ajax' : FALSE;
+		$this->is_ajax = (isset($this->server['HTTP_X_REQUESTED_WITH']) && strtolower($this->server['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ? 'Ajax' : FALSE;
 
 		/* with http:// and with trailing slash */
-		$this->base_url = trim('http://'.$config['server']['HTTP_HOST'].dirname($config['server']['SCRIPT_NAME']),'/');
+		$this->base_url = trim('http://'.$this->server['HTTP_HOST'].dirname($this->server['SCRIPT_NAME']),'/');
 
-		/* The GET method is default so controller methods look like openAction, others are handled directly openPostAction, openPutAction, openDeleteAction, etc... */
-		$this->raw_request = ucfirst(strtolower($config['server']['REQUEST_METHOD']));
+		/* what type of request for REST or other */
+		$this->raw_request = ucfirst(strtolower($this->server['REQUEST_METHOD']));
+
+		/* if request is Get than make it empty since it's the "default" */
 		$this->request = ($this->raw_request == 'Get') ? '' : $this->raw_request;
 
-		/* Put PUT posted into into $_POST */
+		/* this makes our methods follow the following fooAction (Get), fooPostAction (Post), fooPutAction (Put), fooDeleteAction (delete), etc... */
+
+		/* PHP doesn't handle PUT very well so we need to capture that manually */
 		if ($this->raw_request == 'Put') {
 			parse_str(file_get_contents('php://input'), $this->put);
 		}
 
 		/* get the uri (uniform resource identifier) */
-		$this->uri = $this->raw_uri = trim(urldecode(substr(parse_url($config['server']['REQUEST_URI'],PHP_URL_PATH),strlen(dirname($config['server']['SCRIPT_NAME'])))),'/');
+		$this->uri = $this->raw_uri = trim(urldecode(substr(parse_url($this->server['REQUEST_URI'],PHP_URL_PATH),strlen(dirname($this->server['SCRIPT_NAME'])))),'/');
 
 		/* get the uri pieces */
 		$this->segs = $this->raw_segs = explode('/',$this->uri);
 
-		/* If they didn't include a controller and method use the defaults  main & index */
+		/* If they didn't include a controller and method use the defaults main & index */
 		$this->controller = (!@empty($this->segs[0])) ? str_replace('-','_',strtolower(array_shift($this->segs))) : 'main';
 		$this->method = (!@empty($this->segs[0])) ? str_replace('-','_',strtolower(array_shift($this->segs))) : 'index';
 
-		/* try to auto load the controller - will throw an error you must catch if it's not there */
+		/* what the Controller Name? */
 		$this->classname = $this->controller.'Controller';
 
-		/* instantiate it */
+		/* try to instantiate (+autoload) the controller */
 		$controller = new $this->classname();
 
 		/* what method are we going to try to call? */
@@ -90,6 +96,7 @@ class mvc {
 			/* call the method and echo what's returned */
 			return call_user_func_array(array($controller,$this->called),$this->segs);
 		} else {
+			/* no throw a error */
 			throw new Method_Not_Found_Exception('Method '.$this->called.' Not Found',405);
 		}
 	}
@@ -111,7 +118,7 @@ class mvc {
 		}
 
 		/* where is our file? */
-		$filename = $this->app.$folder.'/'.$name.'.php';
+		$filename = $this->app_path.'/'.$folder.'/'.$name.'.php';
 
 		/* is the file their? */
 		if (file_exists($filename)) {
@@ -128,14 +135,18 @@ class mvc {
 		} else {
 
 			/* simple error and exit */
-			throw new File_Not_Found_Exception('File '.$name.' Not Found',404);
+			if ($folder == 'controllers') {
+				throw new Controller_Not_Found_Exception('Controller '.$name.' Not Found',404);
+			} else {
+				throw new File_Not_Found_Exception('File '.$name.' Not Found',404);
+			}
 		}
 	}
 
 	/* auto load view and extract view data */
 	public function view($_mvc_view_name,$_mvc_view_data=array()) {
 		/* what file we looking for? */
-		$_mvc_view_file = $this->app.'views/'.$_mvc_view_name.'.php';
+		$_mvc_view_file = $this->app_path.'views/'.$_mvc_view_name.'.php';
 
 		/* is it there? if not return nothing */
 		if (file_exists($_mvc_view_file)) {
