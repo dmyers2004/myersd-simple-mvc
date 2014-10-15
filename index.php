@@ -1,12 +1,9 @@
 <?php
 require 'mvc.php';
 
-/* setup a native class object to act as a service locator */
-$app = new app();
-
 /* send the config */
 $config = [
-	'runcode'=>getenv('RUNCODE'),
+	'runcode'=>getenv('RUNCODE'), /* you can also get this from $_SERVER */
 	'default_controller'=>'main',
 	'default_method'=>'index',
 	'path'=>__DIR__,
@@ -14,20 +11,20 @@ $config = [
 	'server'=>$_SERVER,
 	'post'=>$_POST,
 	'get'=>$_GET,
-	'cookies'=>$_COOKIE,
+	'cookie'=>$_COOKIE,
 	'env'=>$_ENV,
 	'files'=>$_FILES,
 	'request'=>$_REQUEST,
 	'put'=>[],
 	'exception_error_handler'=>function($e) {
-		echo 'My Exception<br><pre>';
-		var_dump($e->getCode());
-		var_dump($e->getMessage());
-		die();
+		echo 'My Exception Handler<br>';
+		echo 'Error Number: '.$e->getCode().'<br>';
+		echo 'Error Message: '.$e->getMessage().'<br>';
+		exit(1);
 	},
 	'session_handler'=>function(&$app) {
 		/* make sure the session name starts with a letter */
-		session_name('a'.substr(md5($app->config->app->modules),7,16));
+		session_name('a'.substr(md5($app->init->modules),7,16));
 
 		/* start session */
 		session_start();
@@ -37,5 +34,8 @@ $config = [
 	},
 ];
 
-/* send in the config */
-echo $app->init($config)->route();
+/* setup the application with our config */
+$app = new app($config);
+
+/* tell the application to route and echo the results */
+echo $app->route();
