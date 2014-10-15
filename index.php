@@ -2,7 +2,7 @@
 require 'mvc.php';
 
 /* setup a native class object to act as a service locator */
-$app = new mvc();
+$app = new app();
 
 /* send the config */
 $config = [
@@ -27,7 +27,7 @@ $config = [
 	},
 	'session_handler'=>function(&$app) {
 		/* make sure the session name starts with a letter */
-		session_name('a'.substr(md5($app->modules),7,16));
+		session_name('a'.substr(md5($app->config->app->modules),7,16));
 
 		/* start session */
 		session_start();
@@ -38,4 +38,4 @@ $config = [
 ];
 
 /* send in the config */
-echo $app->route($config);
+echo $app->init($config)->route();

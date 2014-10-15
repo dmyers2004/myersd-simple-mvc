@@ -11,10 +11,16 @@ function app() {
 	return $app;
 }
 
-class mvc {
-	public $put = [];
+class app {
+	public $config;
 
-	public function route($config) {
+	public function init($config = NULL) {
+		$this->config = new stdClass();
+		$this->config->app = new stdClass;
+
+		$this->config->app = (object)$config;
+		$this->config->app->put = [];
+
 		/* now required by PHP */
 		if (!ini_get('date.timezone')) {
 			/* if date.timezone not set in php.ini or not sent in config date_timezone use UTC */
@@ -23,116 +29,117 @@ class mvc {
 			date_default_timezone_set($tz);
 		}
 
-		/* attach all of the config variables to $app */
-		foreach ($config as $key=>$value) {
-			$this->$key = $value;
-		}
-
 		/* Defaults to no errors displayed */
 		error_reporting(E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT);
 		ini_set('display_errors', 0);
 
 		/* if it's DEBUG then turn the error display on */
-		if ($this->runcode == 'DEBUG') {
+		if ($this->config->app->runcode == 'DEBUG') {
 			error_reporting(E_ALL);
 			ini_set('display_errors', 1);
 		}
 
 		/* add our application folder(s) to the search path */
-		set_include_path(get_include_path().PATH_SEPARATOR.$this->modules);
+		set_include_path(get_include_path().PATH_SEPARATOR.$this->config->app->modules);
 
 		/* register the autoloader */
 		spl_autoload_register([$this,'load']);
-		
+
 		/* register the exception handler */
 		set_exception_handler($config['exception_error_handler']);
 
 		/* is this a ajax request? */
-		$this->is_ajax = (isset($this->server['HTTP_X_REQUESTED_WITH']) && strtolower($this->server['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ? 'Ajax' : FALSE;
+		$this->config->app->is_ajax = (isset($this->config->app->server['HTTP_X_REQUESTED_WITH']) && strtolower($this->config->app->server['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ? 'Ajax' : FALSE;
 
 		/* is this a https request? */
-		$this->https = ((!empty($this->server['HTTPS']) && $this->server['HTTPS'] !== 'off') || $this->server['SERVER_PORT'] == 443);
+		$this->config->app->https = ((!empty($this->config->app->server['HTTPS']) && $this->config->app->server['HTTPS'] !== 'off') || $this->config->app->server['SERVER_PORT'] == 443);
 
 		/* with http:// and with trailing slash */
-		$this->base_url = trim('http'.($this->https ? 's' : '').'://'.$this->server['HTTP_HOST'].dirname($this->server['SCRIPT_NAME']),'/');
+		$this->config->app->base_url = trim('http'.($this->config->app->https ? 's' : '').'://'.$this->config->app->server['HTTP_HOST'].dirname($this->config->app->server['SCRIPT_NAME']),'/');
 
 		/* what type of request for REST or other */
-		$this->raw_request = ucfirst(strtolower($this->server['REQUEST_METHOD']));
+		$this->config->app->raw_request = ucfirst(strtolower($this->config->app->server['REQUEST_METHOD']));
 
 		/* if request is Get than make it empty since it's the "default" */
-		$this->request = ($this->raw_request == 'Get') ? '' : $this->raw_request;
+		$this->config->app->request = ($this->config->app->raw_request == 'Get') ? '' : $this->config->app->raw_request;
 
 		/* this makes our methods follow the following fooAction (Get), fooPostAction (Post), fooPutAction (Put), fooDeleteAction (delete), etc... */
 
 		/* PHP doesn't handle PUT very well so we need to capture that manually */
-		if ($this->raw_request == 'Put') {
-			parse_str(file_get_contents('php://input'), $this->put);
+		if ($this->config->app->raw_request == 'Put') {
+			parse_str(file_get_contents('php://input'), $this->config->app->put);
 		}
 
 		/* call the session handler */
 		$config['session_handler']($this);
 
+		return $this;
+	}
+
+	public function route($uri = NULL) {
+		$this->config->app->uri = ($uri) ? $uri : $this->config->app->server['REQUEST_URI'];
+
 		/* get the uri (uniform resource identifier) */
-		$this->uri = trim(urldecode(substr(parse_url($this->server['REQUEST_URI'],PHP_URL_PATH),strlen(dirname($this->server['SCRIPT_NAME'])))),'/');
+		$this->config->app->uri = trim(urldecode(substr(parse_url($this->config->app->uri,PHP_URL_PATH),strlen(dirname($this->config->app->server['SCRIPT_NAME'])))),'/');
 
 		/* ok let's split these up for futher processing */
-		$this->segments = explode('/',$this->uri);
-		
+		$this->config->app->segments = explode('/',$this->config->app->uri);
+
 		/* setup the defaults */
-		$this->controller = $this->default_controller;
-		$this->classname = $this->controller.'Controller';
-		$this->method = $this->default_method;
-		$this->parameters = [];
-		$this->directory = '';
-		$this->controller_path = '';
-		
+		$this->config->app->controller = $this->config->app->default_controller;
+		$this->config->app->classname = $this->config->app->controller.'Controller';
+		$this->config->app->method = $this->config->app->default_method;
+		$this->config->app->parameters = [];
+		$this->config->app->directory = '';
+		$this->config->app->controller_path = '';
+
 		/* is the url empty? if so use the defaults */
-		if ($this->uri != '') {
+		if ($this->config->app->uri != '') {
 			/* keep shifting off directories until we get a match */
-			foreach ($this->segments as $idx=>$seg) {
-				
+			foreach ($this->config->app->segments as $idx=>$seg) {
+
 				/* what controller are we testing for? */
-				$this->classname = str_replace('-','_',$seg).'Controller';
-				
-				if ($controller_path = stream_resolve_include_path('controllers/'.$this->directory.$this->classname.'.php')) {
+				$this->config->app->classname = str_replace('-','_',$seg).'Controller';
+
+				if ($this->config->app->controller_path = stream_resolve_include_path('controllers/'.$this->config->app->directory.$this->config->app->classname.'.php')) {
 					/* match */
-					$this->controller = substr($this->classname,0,-10);
-					
+					$this->config->app->controller = substr($this->config->app->classname,0,-10);
+
 					/* what's the method? */
-					$this->method = (isset($this->segments[$idx+1])) ? str_replace('-','_',$this->segments[$idx+1]) : $this->method;
-					
-					/* what are the parameters? */				
-					$this->parameters = array_slice($this->segments,$idx+2);
-					
+					$this->config->app->method = (isset($this->config->app->segments[$idx+1])) ? str_replace('-','_',$this->config->app->segments[$idx+1]) : $this->config->app->method;
+
+					/* what are the parameters? */
+					$this->config->app->parameters = array_slice($this->config->app->segments,$idx+2);
+
 					/* load that controller */
-					include $controller_path;
-					
+					include $this->config->app->controller_path;
+
 					/* get out of here we found a match! */
 					break;
 				}
-				
+
 				/* we didn't find a match yet so add that segement to the directory */
-				$this->directory .= $seg.'/';
+				$this->config->app->directory .= $seg.'/';
 			}
 		}
 
-		if (!class_exists($this->classname)) {
-			throw new Controller_Not_Found_Exception('Controller File '.$this->classname.'.php Not Found',408);
+		if (!class_exists($this->config->app->classname)) {
+			throw new Controller_Not_Found_Exception('Controller File '.$this->config->app->classname.'.php Not Found',408);
 		}
 
 		/* try to instantiate the controller */
-		$controller = new $this->classname();
+		$controller = new $this->config->app->classname();
 
 		/* what method are we going to try to call? */
-		$this->called = $this->method.$this->request.'Action';
+		$this->config->app->called = $this->config->app->method.$this->config->app->request.'Action';
 
 		/* does that method even exist? */
-		if (method_exists($controller, $this->called)) {
+		if (method_exists($controller, $this->config->app->called)) {
 			/* call the method and echo what's returned */
-			return call_user_func_array(array($controller,$this->called),$this->parameters);
+			return call_user_func_array(array($controller,$this->config->app->called),$this->config->app->parameters);
 		} else {
 			/* no throw a error */
-			throw new Method_Not_Found_Exception('Method '.$this->called.' Not Found',405);
+			throw new Method_Not_Found_Exception('Method '.$this->config->app->called.' Not Found',405);
 		}
 	}
 
@@ -157,6 +164,9 @@ class mvc {
 			if ($folder == 'config') {
 				/* include the config file */
 				include $filename;
+				
+				/* attach it to the app */
+				$this->config->{substr($name,0,-4)} = (object)$config;
 
 				/* this fills $config so return it */
 				return $config;
