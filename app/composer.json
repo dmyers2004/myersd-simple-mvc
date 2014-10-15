@@ -1,0 +1,6 @@
+{
+		"require": {
+				"jumplead/mongoqb": "*",
+				"guzzlehttp/guzzle": "~5.0"
+		}
+}

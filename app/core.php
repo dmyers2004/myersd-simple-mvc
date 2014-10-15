@@ -16,6 +16,27 @@ class app {
 	public $properties;
 
 	public function __construct($config = NULL) {
+		$defaults = [
+			'runcode'=>getenv('RUNCODE'), /* you can also get this from $_SERVER */
+			'default_controller'=>'main',
+			'default_method'=>'index',
+			'restful'=>TRUE,
+			'path'=>__DIR__,
+			'error_reporting'=>E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT,
+			'display_errors'=>0,
+			'modules'=>__DIR__.'/app/',
+			'server'=>$_SERVER,
+			'post'=>$_POST,
+			'get'=>$_GET,
+			'cookie'=>$_COOKIE,
+			'env'=>$_ENV,
+			'files'=>$_FILES,
+			'request'=>$_REQUEST,
+			'put'=>[],
+		];
+
+		$config = array_replace_recursive($defaults,$config);
+
 		/* let's organize some of these */
 		
 		/* this is to store the config files once loaded */
@@ -46,15 +67,9 @@ class app {
 			date_default_timezone_set($tz);
 		}
 
-		/* Defaults to no errors displayed */
-		error_reporting(E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT);
-		ini_set('display_errors', 0);
-
-		/* if it's DEBUG then turn the error display on */
-		if ($this->init->runcode == 'DEBUG') {
-			error_reporting(E_ALL);
-			ini_set('display_errors', 1);
-		}
+		/* setup our error display */
+		error_reporting($this->init->error_reporting);
+		ini_set('display_errors', $this->init->display_errors);
 
 		/* add our modules to the search path */
 		set_include_path(get_include_path().PATH_SEPARATOR.$this->init->modules);
@@ -63,7 +78,9 @@ class app {
 		spl_autoload_register([$this,'load']);
 
 		/* register the exception handler */
-		set_exception_handler($config['exception_error_handler']);
+		if (isset($config['exception_error_handler'])) {
+			set_exception_handler($config['exception_error_handler']);
+		}
 
 		/* is this a ajax request? */
 		$this->properties->is_ajax = (isset($this->properties->server->HTTP_X_REQUESTED_WITH) && strtolower($this->properties->server->HTTP_X_REQUESTED_WITH) === 'xmlhttprequest') ? 'Ajax' : FALSE;
@@ -76,19 +93,21 @@ class app {
 
 		/* what type of request for REST or other */
 		$this->properties->raw_request = ucfirst(strtolower($this->properties->server->REQUEST_METHOD));
-
-		/* if request is Get than make it empty since it's the "default" */
-		$this->properties->request = ($this->properties->raw_request == 'Get') ? '' : $this->properties->raw_request;
-
-		/* this makes our methods follow the following fooAction (Get), fooPostAction (Post), fooPutAction (Put), fooDeleteAction (delete), etc... */
-
+		
+		/*
+		is this a restful app?
+		if so and the request is Get than make it empty since it's the "default"
+		this makes our methods follow the following fooAction (Get), fooPostAction (Post), fooPutAction (Put), fooDeleteAction (delete), etc...
+		*/
+		$this->properties->request = ($this->init->restful) ? $this->properties->request = ($this->properties->raw_request == 'Get') ? '' : $this->properties->raw_request : '';
+		
 		/* PHP doesn't handle PUT very well so we need to capture that manually */
 		if ($this->properties->raw_request == 'Put') {
 			parse_str(file_get_contents('php://input'), $this->properties->put);
 		}
 
 		/* call the session handler */
-		if ($config['session_handler']) {
+		if (isset($config['session_handler'])) {
 			$config['session_handler']($this);
 		}
 	}
@@ -177,28 +196,24 @@ class app {
 			}
 		}
 
-		/* is the file their? */
+		/* is the file there? */
 		if ($filename = stream_resolve_include_path($folder.'/'.$name.'.php')) {
 			if ($folder == 'config') {
 				/* include the config file */
-				include $filename;
+				include_once $filename;
+				
+				$namespace = substr($name,0,-4);
 				
 				/* attach it to the app */
-				$this->config->{substr($name,0,-4)} = (object)$config;
+				$this->config->$namespace = (object)$config;
 
 				/* this fills $config so return it */
-				return $config;
+				return $this->config->$namespace;
 			} else {
 				/* then let's load it */
 				require_once $filename;
-
-				/* it's there and loaded return true */
-				return TRUE;
 			}
 		}
-
-		/* it's not there return false */
-		return FALSE;
 	}
 
 	/* auto load view and extract view data */

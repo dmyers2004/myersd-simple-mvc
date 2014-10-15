@@ -11,8 +11,9 @@ class miscController {
 	}
 
 	public function debugAction() {
-		$data['mvc'] = mvc();
-		$data['c'] = mvc()->load('application.cnf');
+		$data['mvc'] = app();
+		$data['c'] = app()->load('application.cnf');
+		
 
 		return app()->view('debug',$data);
 	}
@@ -27,4 +28,22 @@ class miscController {
 		return app()->view('welcome',$data);
 	}
 
-}
+	public function mongoAction() {
+		$config = app()->load('mongo.cnf');
+		
+		$qb = new \MongoQB\Builder(['dsn'=>$config->dsn]);
+		
+		$qb->insert('test_select', array(
+			'firstname'	=>	'John',
+			'surname'	=>	'Doe',
+			'likes'	=>	array(
+				'whisky',
+				'gin',
+				'rum'
+			),
+			'age'	=>	22
+		));
+		
+	}
+
+} /* end controller */

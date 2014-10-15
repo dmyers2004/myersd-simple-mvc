@@ -1,13 +1,16 @@
 <?php
-require 'mvc.php';
+require '../core.php';
 
-/* send the config */
-$config = [
+/* send the init */
+$init = [
 	'runcode'=>getenv('RUNCODE'), /* you can also get this from $_SERVER */
 	'default_controller'=>'main',
 	'default_method'=>'index',
+	'restful'=>TRUE,
 	'path'=>__DIR__,
-	'modules'=>__DIR__.'/app/'.PATH_SEPARATOR.__DIR__.'/foo/',
+	'error_reporting'=>E_ALL,
+	'display_errors'=>1,
+	'modules'=>'../app/'.PATH_SEPARATOR.'../foo/',
 	'server'=>$_SERVER,
 	'post'=>$_POST,
 	'get'=>$_GET,
@@ -22,20 +25,24 @@ $config = [
 		echo 'Error Message: '.$e->getMessage().'<br>';
 		exit(1);
 	},
+/*
 	'session_handler'=>function(&$app) {
-		/* make sure the session name starts with a letter */
+		// make sure the session name starts with a letter
 		session_name('a'.substr(md5($app->init->modules),7,16));
 
-		/* start session */
+		// start session
 		session_start();
 
-		/* capture any session variables */
+		// capture any session variables
 		$app->session = &$_SESSION;
 	},
+	*/
 ];
 
+require_once '../vendor/autoload.php';
+
 /* setup the application with our config */
-$app = new app($config);
+$app = new app($init);
 
 /* tell the application to route and echo the results */
 echo $app->route();
