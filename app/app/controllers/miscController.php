@@ -45,5 +45,9 @@ class miscController {
 		));
 		
 	}
+	
+	public function testAction() {
+		return 'hello from the post';
+	}
 
 } /* end controller */

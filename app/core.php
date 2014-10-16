@@ -2,7 +2,6 @@
 
 class Controller_Not_Found_Exception extends Exception { }
 class Method_Not_Found_Exception extends Exception { }
-class View_Not_Found_Exception extends Exception { }
 
 /* give me a reference to the global service locator */
 function app() {
@@ -11,13 +10,12 @@ function app() {
 }
 
 class app {
-	public $config;
-	public $init;
-	public $properties;
+	public $init; /* storage for all initial config settings */
+	public $properties; /* storage for all properties built during initialization */
 
 	public function __construct($config = NULL) {
 		$defaults = [
-			'runcode'=>getenv('RUNCODE'), /* you can also get this from $_SERVER */
+			'config_env'=>'ENV',
 			'default_controller'=>'main',
 			'default_method'=>'index',
 			'restful'=>TRUE,
@@ -37,21 +35,16 @@ class app {
 
 		$config = array_replace_recursive($defaults,$config);
 
-		/* let's organize some of these */
-		
-		/* this is to store the config files once loaded */
-		$this->config = new stdClass;
-		
 		/* this is to store the application properties */
 		$this->properties = new stdClass;
-		
+
 		/* which onces do we want to "namespace" */
 		$copy = ['server','post','get','cookie','env','files','request','put'];
-		
+
 		/* loop over them and set them up */
 		foreach ($copy as $c) {
 			$this->properties->$c = (object)$config[$c];
-			
+
 			/* remove them from the config */
 			unset($config[$c]);
 		}
@@ -93,14 +86,14 @@ class app {
 
 		/* what type of request for REST or other */
 		$this->properties->raw_request = ucfirst(strtolower($this->properties->server->REQUEST_METHOD));
-		
+
 		/*
 		is this a restful app?
 		if so and the request is Get than make it empty since it's the "default"
 		this makes our methods follow the following fooAction (Get), fooPostAction (Post), fooPutAction (Put), fooDeleteAction (delete), etc...
 		*/
 		$this->properties->request = ($this->init->restful) ? $this->properties->request = ($this->properties->raw_request == 'Get') ? '' : $this->properties->raw_request : '';
-		
+
 		/* PHP doesn't handle PUT very well so we need to capture that manually */
 		if ($this->properties->raw_request == 'Put') {
 			parse_str(file_get_contents('php://input'), $this->properties->put);
@@ -110,13 +103,13 @@ class app {
 		if (isset($config['session_handler'])) {
 			$config['session_handler']($this);
 		}
-	}
+	} /* end __construct() */
 
 	public function route($uri = NULL) {
 		$this->properties->uri = ($uri) ? $uri : $this->properties->server->REQUEST_URI;
 
-		/* get the uri (uniform resource identifier) */
-		$this->properties->uri = trim(urldecode(substr(parse_url($this->properties->uri,PHP_URL_PATH),strlen(dirname($this->properties->server->SCRIPT_NAME)))),'/');
+		/* get the uri (uniform resource identifier) and preform some basic clean up */
+		$this->properties->uri = filter_var(trim(urldecode(substr(parse_url($this->properties->uri,PHP_URL_PATH),strlen(dirname($this->properties->server->SCRIPT_NAME)))),'/'),FILTER_SANITIZE_URL);
 
 		/* ok let's split these up for futher processing */
 		$this->properties->segments = explode('/',$this->properties->uri);
@@ -158,7 +151,7 @@ class app {
 				$this->properties->directory .= $seg.'/';
 			}
 		}
-		
+
 		/* was the class loaded or is it the root controller which can be auto loaded */
 		if (!class_exists($this->properties->classname)) {
 			throw new Controller_Not_Found_Exception('Controller File '.$this->properties->classname.'.php Not Found',800);
@@ -178,73 +171,42 @@ class app {
 			/* no throw a error */
 			throw new Method_Not_Found_Exception('Method '.$this->properties->called.' Not Found',801);
 		}
+	} /* end route() */
+
+	public function attach($name,$class_name=NULL) {
+		$this->load($name,$class_name,TRUE);
 	}
 
-	/* class autoloader */
-	public function load($name,$folder=NULL) {
-		if (!$folder) {
-			/* default folder */
-			$folder = 'libraries';
+	/* class autoloader - you also use this for loading config files */
+	public function load($name,$class_name=NULL,$attach=FALSE) {
+		/* default folder */
+		$folder = 'libraries';
 
-			/* based on a suffix setup the folder */
-			if (substr($name,-5) == 'model') {
-				$folder = 'models';
-			} elseif (substr($name,-4) == '.cnf') {
-				$folder = 'config';
-			} elseif (substr($name,-10) == 'Controller') {
-				$folder = 'controllers';
-			}
+		/* based on a suffix setup the folder */
+		if (substr($name,-5) == 'model') {
+			$folder = 'models';
+		} elseif (substr($name,-10) == 'Controller') {
+			$folder = 'controllers';
 		}
+
+		$class_name = ($class_name) ? $class_name : basename($name);
 
 		/* is the file there? */
 		if ($filename = stream_resolve_include_path($folder.'/'.$name.'.php')) {
-			if ($folder == 'config') {
-				/* include the config file */
-				include_once $filename;
-				
-				$namespace = substr($name,0,-4);
-				
-				/* attach it to the app */
-				$this->config->$namespace = (object)$config;
 
-				/* this fills $config so return it */
-				return $this->config->$namespace;
-			} else {
-				/* then let's load it */
-				require_once $filename;
+			/* then let's load it */
+			require_once $filename;
+
+			if ($attach === TRUE && !isset($this->$class_name)) {
+				$this->$class_name = new $class_name($this);
 			}
 		}
-	}
+	} /* end load() */
 
-	/* auto load view and extract view data */
-	public function view($_mvc_view_name,$_mvc_view_data=array()) {
-		/* is it there? */
-		if ($_mvc_view_file = stream_resolve_include_path('views/'.$_mvc_view_name.'.php')) {
-			/* extract out view data and make it in scope */
-			extract($_mvc_view_data);
-
-			/* start output cache */
-			ob_start();
-
-			/* load in view (which now has access to the in scope view data */
-			include $_mvc_view_file;
-
-			/* capture cache and return */
-			return ob_get_clean();
-		} else {
-
-			/* simply error and exit */
-			throw new View_Not_Found_Exception('View File views/'.$_mvc_view_name.'.php Not Found',802);
+	public function __call($name, $arguments) {
+		if (is_callable([$this->$name,$name])) {
+			return call_user_func_array([$this->$name,$name],$arguments);
 		}
-	}
-
-	/* redirect - cuz you always need one */
-	public function redirect($url='/') {
-		/* send redirect header */
-		header("Location: $url");
-
-		/* exit */
-		exit(1);
 	}
 
 } /* end mvc class */

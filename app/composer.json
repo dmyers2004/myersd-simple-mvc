@@ -1,6 +1,7 @@
 {
 		"require": {
 				"jumplead/mongoqb": "*",
-				"guzzlehttp/guzzle": "~5.0"
+				"guzzlehttp/guzzle": "~5.0",
+				"j4mie/paris": "dev-master"
 		}
 }

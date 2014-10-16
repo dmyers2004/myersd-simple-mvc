@@ -3,7 +3,7 @@ require '../core.php';
 
 /* send the init */
 $init = [
-	'runcode'=>getenv('RUNCODE'), /* you can also get this from $_SERVER */
+	'config_env'=>'ENV',
 	'default_controller'=>'main',
 	'default_method'=>'index',
 	'restful'=>TRUE,
@@ -19,13 +19,17 @@ $init = [
 	'files'=>$_FILES,
 	'request'=>$_REQUEST,
 	'put'=>[],
-	'exception_error_handler'=>function($e) {
-		echo 'My Exception Handler<br>';
-		echo 'Error Number: '.$e->getCode().'<br>';
-		echo 'Error Message: '.$e->getMessage().'<br>';
+	'exception_error_handler'=>function($exception) {
+		echo('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Syntax Error</title></head><body><code>
+			Version: PHP '.phpversion().'<br>
+			Memory: '.floor(memory_get_peak_usage()/1024).'K of '.ini_get('memory_limit').' used<br>
+			Error Code: '.$exception->getCode().'<br>
+			Error Message: '.$exception->getMessage().'<br>
+			File: '.$exception->getFile().'<br>
+			Line: '.$exception->getLine().'<br>
+			</code></body></html>');
 		exit(1);
 	},
-/*
 	'session_handler'=>function(&$app) {
 		// make sure the session name starts with a letter
 		session_name('a'.substr(md5($app->init->modules),7,16));
@@ -36,7 +40,6 @@ $init = [
 		// capture any session variables
 		$app->session = &$_SESSION;
 	},
-	*/
 ];
 
 require_once '../vendor/autoload.php';
@@ -46,3 +49,4 @@ $app = new app($init);
 
 /* tell the application to route and echo the results */
 echo $app->route();
+
