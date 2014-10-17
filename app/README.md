@@ -11,4 +11,4 @@ Well then this simple PHP MVC framework is for you!
 
 2014 version cuz. I need to create one every year!
 
-composer compataible
+composer compatible

@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
-            "version": "5.0.0",
+            "version": "5.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "28b51e11237f25cdb0efaea8e45af26007831aa9"
+                "reference": "9e806208d9b418a58ec86c49078aa94385e64bbd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/28b51e11237f25cdb0efaea8e45af26007831aa9",
-                "reference": "28b51e11237f25cdb0efaea8e45af26007831aa9",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/9e806208d9b418a58ec86c49078aa94385e64bbd",
+                "reference": "9e806208d9b418a58ec86c49078aa94385e64bbd",
                 "shasum": ""
             },
             "require": {
@@ -62,7 +62,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2014-10-13 03:05:51"
+            "time": "2014-10-16 18:00:41"
         },
         {
             "name": "guzzlehttp/ringphp",

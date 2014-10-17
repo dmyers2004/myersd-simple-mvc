@@ -18,6 +18,7 @@ $init = [
 	'env'=>$_ENV,
 	'files'=>$_FILES,
 	'request'=>$_REQUEST,
+	'session'=>NULL, /* if you want to mock in some put a array here */
 	'put'=>[],
 	'autoload'=>['core/session','core/config','core/view'],
 	'exception_error_handler'=>function($exception) {
