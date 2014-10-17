@@ -30,7 +30,9 @@ class app {
 			'env'=>$_ENV,
 			'files'=>$_FILES,
 			'request'=>$_REQUEST,
+			'session'=>NULL, /* mock session */
 			'put'=>[],
+			'autoload'=>['core/session','core/config','core/view'],
 		];
 
 		$config = array_replace_recursive($defaults,$config);
@@ -99,10 +101,11 @@ class app {
 			parse_str(file_get_contents('php://input'), $this->properties->put);
 		}
 
-		/* call the session handler */
-		if (isset($config['session_handler'])) {
-			$config['session_handler']($this);
+		/* autoload */
+		foreach ($this->init->autoload as $lib) {
+			$this->attach($lib);
 		}
+
 	} /* end __construct() */
 
 	public function route($uri = NULL) {

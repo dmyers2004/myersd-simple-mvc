@@ -19,6 +19,7 @@ $init = [
 	'files'=>$_FILES,
 	'request'=>$_REQUEST,
 	'put'=>[],
+	'autoload'=>['core/session','core/config','core/view'],
 	'exception_error_handler'=>function($exception) {
 		echo('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Syntax Error</title></head><body><code>
 			Version: PHP '.phpversion().'<br>
@@ -29,16 +30,6 @@ $init = [
 			Line: '.$exception->getLine().'<br>
 			</code></body></html>');
 		exit(1);
-	},
-	'session_handler'=>function(&$app) {
-		// make sure the session name starts with a letter
-		session_name('a'.substr(md5($app->init->modules),7,16));
-
-		// start session
-		session_start();
-
-		// capture any session variables
-		$app->session = &$_SESSION;
 	},
 ];
 

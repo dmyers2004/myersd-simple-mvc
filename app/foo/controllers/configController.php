@@ -3,8 +3,6 @@
 class configController {
 
 	public function indexAction() {
-		app()->attach('config');
-	
 		$test = app()->config('application');
 
 		echo '<pre>';
@@ -20,9 +18,17 @@ class configController {
 
 		app()->super->output();
 		
-		app()->attach('view');
-		
 		return app()->view('welcome',['name'=>'John']);
+	}
+	
+	public function stestAction() {
+	 app()->session->set('name','Don');
+	}
+	
+	public function gtestAction() {
+		$s = app()->session->get('name');
+		
+		var_dump($s);
 	}
 
 } /* end controller */
