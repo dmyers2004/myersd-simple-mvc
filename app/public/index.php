@@ -10,7 +10,7 @@ $init = [
 	'path'=>__DIR__,
 	'error_reporting'=>E_ALL,
 	'display_errors'=>1,
-	'modules'=>'../app/'.PATH_SEPARATOR.'../foo/',
+	'modules'=>'../app/'.PATH_SEPARATOR.'../modules/foo/',
 	'server'=>$_SERVER,
 	'post'=>$_POST,
 	'get'=>$_GET,
@@ -18,9 +18,11 @@ $init = [
 	'env'=>$_ENV,
 	'files'=>$_FILES,
 	'request'=>$_REQUEST,
+	'log_file'=>'../var/logs/log.log',
+	'log_level'=>255,
 	'session'=>NULL, /* if you want to mock in some put a array here */
 	'put'=>[],
-	'autoload'=>['core/session','core/config','core/view'],
+	'autoload'=>['core/session','core/config','core/view','core/log','core/url'],
 	'exception_error_handler'=>function($exception) {
 		echo('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Syntax Error</title></head><body><code>
 			Version: PHP '.phpversion().'<br>
@@ -41,4 +43,3 @@ $app = new app($init);
 
 /* tell the application to route and echo the results */
 echo $app->route();
-

@@ -33,6 +33,8 @@ class app {
 			'session'=>NULL, /* mock session */
 			'put'=>[],
 			'autoload'=>['core/session','core/config','core/view'],
+			'log_file'=>'../var/logs/log.log',
+			'log_level'=>255,			
 		];
 
 		$config = array_replace_recursive($defaults,$config);
