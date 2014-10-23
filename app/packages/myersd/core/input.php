@@ -1,80 +1,78 @@
 <?php
 namespace myersd\core;
 
-class input extends container {
+class input {
+	protected static $data = [];
+	protected static $c;
 
 	public function __construct(container &$container) {
-		$this->data['server'] = $container['app']['server'];
-		$this->data['post'] = $container['app']['post'];
-		$this->data['get'] = $container['app']['get'];
-		$this->data['cookie'] = $container['app']['cookie'];
-		$this->data['env'] = $container['app']['env'];
-		$this->data['files'] = $container['app']['files'];
-		$this->data['request'] = $container['app']['request'];
-		$this->data['put'] = $container['app']['put'];
+		self::$c = $container;
+
+		$capture = ['server','post','get','cookie','env','files','request','put'];
+
+		foreach ($capture as $c) {
+			self::$data[$c] = $container->app->$c;
+		}
 
 		/* is this a ajax request? */
-		$this->data['is_ajax'] = (isset($container['server']['HTTP_X_REQUESTED_WITH']) && strtolower($container['server']['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ? 'Ajax' : FALSE;
+		self::$data['is_ajax'] = (isset(self::$data['server']['HTTP_X_REQUESTED_WITH']) && strtolower(self::$data['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ? 'Ajax' : FALSE;
 
 		/* is this a https request? */
-		$this->data['https'] = ((!empty($container['server']['HTTPS']) && $container['server']['HTTPS'] !== 'off') || $container['server']['SERVER_PORT'] == 443);
+		self::$data['https'] = ((!empty(self::$data['server']['HTTPS']) && self::$data['server']['HTTPS'] !== 'off') || self::$data['server']['SERVER_PORT'] == 443);
 
 		/* with http(s):// and with trailing slash */
-		$this->data['base_url'] = trim('http'.(($this->data['https']) ? 's' : '').'://'.$container['server']['HTTP_HOST'].dirname($container['server']['SCRIPT_NAME']),'/');
+		self::$data['base_url'] = trim('http'.((self::$data['https']) ? 's' : '').'://'.self::$data['server']['HTTP_HOST'].dirname(self::$data['server']['SCRIPT_NAME']),'/');
 
 		/* what type of request for REST or other */
-		$this->data['raw_method'] = ucfirst(strtolower($this->data['server']['REQUEST_METHOD']));
+		self::$data['raw_method'] = ucfirst(strtolower(self::$data['server']['REQUEST_METHOD']));
 
 		/*
 		is this a restful app?
 		if so and the request is Get than make it empty since it's the "default"
 		this makes our methods follow the following fooAction (Get), fooPostAction (Post), fooPutAction (Put), fooDeleteAction (delete), etc...
 		*/
-		$this->data['method'] = ($this->container['app']['restful']) ? $this->data['method'] = ($this->data['raw_method'] == 'Get') ? '' : $this->data['raw_method'] : '';
+		
+		self::$data['method'] = ($container->app->restful) ? self::$data['method'] = (self::$data['raw_method'] == 'Get') ? '' : self::$data['raw_method'] : '';
 
 		/* PHP doesn't handle PUT very well so we need to capture that manually */
-		if ($this->data['raw_method'] == 'Put') {
-			parse_str(file_get_contents('php://input'), $this->data['put']);
+		if (self::$data['raw_method'] == 'Put') {
+			parse_str(file_get_contents('php://input'), self::$data['put']);
 		}
 	}
-	
+
 	public function prep_uri($uri=NULL) {
-		$uri = ($uri) ? $uri : $this->data['server']['REQUEST_URI']; 
+		$uri = ($uri) ? $uri : self::$data['server']['REQUEST_URI'];
 
 		/* get the uri (uniform resource identifier) and preform some basic clean up */
-		$this->data['uri'] = filter_var(trim($uri,'/'),FILTER_SANITIZE_URL);
+		self::$data['uri'] = filter_var(trim($uri,'/'),FILTER_SANITIZE_URL);
 
 		/* ok let's split these up for futher processing */
-		$this->data['segments'] = explode('/',$this->data['uri']);
-		
-		return $this->data['segments'];
+		self::$data['segments'] = explode('/',self::$data['uri']);
+
+		return self::$data['segments'];
 	}
-	
-	public function data() {
-		return $this->data;
-	}
-	
+
 	public function is_ajax() {
-		return ($this->data['is_ajax'] === 'Ajax');
+		return (self::$data['is_ajax'] === 'Ajax');
 	}
-	
+
 	public function is_https() {
-		return $this->data['https'];
+		return self::$data['https'];
 	}
-	
+
 	public function base_url() {
-		return $this->data['base_url'];
+		return self::$data['base_url'];
 	}
-	
+
 	/* http method */
 	public function method() {
-		return $this->data['method'];
+		return self::$data['method'];
 	}
-	
+
 	public function raw_method() {
-		return $this->data['raw_method'];
+		return self::$data['raw_method'];
 	}
-	
+
 	public function post($name,$default=NULL) {
 		return $this->internal('post',$name,$default);
 	}
@@ -106,9 +104,9 @@ class input extends container {
 	public function put($name,$default=NULL) {
 		return $this->internal('put',$name,$default);
 	}
-	
+
 	protected function internal($key,$name,$default) {
-		return (isset($this->data[$key][$name])) ? $this->data[$key][$name] : $default;
+		return (isset(self::$data[$key][$name])) ? self::$data[$key][$name] : $default;
 	}
-	
+
 } /* end request */

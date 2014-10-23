@@ -5,25 +5,29 @@ use \myersd\core\controller;
 class mainController extends controller {
 
 	public function indexAction() {
+		echo 'mainController indexAction';
+	}
+
+	public function methodAction() {
+		echo 'mainController methodAction';
+	}
+
+	public function viewAction() {
 		$this->data['name'] = 'Johnny Appleseed';
 
-		echo '<pre>';
-		
-		var_dump($this->app->app->data());
-
-		$this->app->view->render('index',$this->data);
+		$this->c->view->render('index',$this->data);
 	}
 	
 	public function configAction() {
-		$c = $this->app->config->item('mongo');
+		$c = c()->config->item('mongo');
 		
 		echo '<pre>';
 		var_dump($c);
 		
-		$d = $this->app->config->item('mongo','dsn');
+		$d = c()->config->item('mongo','dsn');
 		var_dump($d);
 
-		$d = $this->app->config->item('application');
+		$d = c()->config->item('application');
 		var_dump($d);
 	
 	}

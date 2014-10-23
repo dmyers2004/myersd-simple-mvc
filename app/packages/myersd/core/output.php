@@ -1,14 +1,18 @@
 <?php
 namespace myersd\core;
 
-class output extends container {
-	protected $final_output;
-	protected $headers = [];
-	protected $mimes = [];
-	protected $mime_type = 'text/html';
+class output {
+	protected static $final_output;
+	protected static $headers = [];
+	protected static $mimes = [];
+	protected static $mime_type = 'text/html';
+
+	public function __construct(container &$container) {
+	
+	}
 
 	public function set_output($output) {
-		$this->final_output = $output;
+		self::$final_output = $output;
 
 		return $this;
 	}
@@ -18,8 +22,8 @@ class output extends container {
 	}
 
 	public function get_content_type() {
-		for ($i = 0, $c = count($this->headers); $i < $c; $i++) {
-			if (sscanf($this->headers[$i][0], 'Content-Type: %[^;]', $content_type) === 1) {
+		for ($i = 0, $c = count(self::$headers); $i < $c; $i++) {
+			if (sscanf(self::$headers[$i][0], 'Content-Type: %[^;]', $content_type) === 1) {
 				return $content_type;
 			}
 		}
@@ -31,7 +35,7 @@ class output extends container {
 		// Combine headers already sent with our batched headers
 		$headers = array_merge(
 			// We only need [x][0] from our multi-dimensional array
-			array_map('array_shift', $this->headers),
+			array_map('array_shift', self::$headers),
 			headers_list()
 		);
 
@@ -49,13 +53,13 @@ class output extends container {
 	}
 
 	public function append_output($output) {
-		$this->final_output .= $output;
+		self::$final_output .= $output;
 
 		return $this;
 	}
 
 	public function set_header($header, $replace = TRUE) {
-		$this->headers[] = [$header, $replace];
+		self::$headers[] = [$header, $replace];
 
 		return $this;
 	}
@@ -70,11 +74,11 @@ class output extends container {
 	public function _display($output=NULL) {
 		// Set the output data
 		if ($output === NULL) {
-			$output = $this->final_output;
+			$output = self::$final_output;
 		}
 
-		if (count($this->headers) > 0) {
-			foreach ($this->headers as $header) {
+		if (count(self::$headers) > 0) {
+			foreach (self::$headers as $header) {
 				@header($header[0], $header[1]);
 			}
 		}

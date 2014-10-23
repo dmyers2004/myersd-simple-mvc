@@ -7,13 +7,19 @@ use myersd\core\container;
 class View_Not_Found_Exception extends \Exception { }
 
 class view extends container {
+	protected static $c = [];
+
+	public function __construct(container &$container) {
+		self::$c = $container;
+	}
+
 	public function partial($_mvc_view_name=NULL,$_mvc_view_data=[]) {
 		return $this->render($_mvc_view_name,$_mvc_view_data,FALSE);
 	}
 
 	public function render($_mvc_view_name=NULL,$_mvc_view_data=[],$output=TRUE) {
 		$output = '';
-		
+
 		if ($_mvc_view_file = stream_resolve_include_path('views/'.$_mvc_view_name.'.php')) {
 
 			/* extract out view data and make it in scope */
@@ -33,7 +39,7 @@ class view extends container {
 		}
 		
 		if ($output) {
-			$this->container->output->set_output($output);
+			self::$c->output->set_output($output);
 		}
 		
 		return $output;

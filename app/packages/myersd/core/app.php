@@ -4,7 +4,8 @@ namespace myersd\core;
 class Controller_Not_Found_Exception extends \Exception {}
 class Method_Not_Found_Exception extends \Exception {}
 
-class app extends container {
+class app {
+	protected static $data = [];
 	
 	public function __construct(container &$container) {
 		/* You can send in 1 or more of these for mocking */
@@ -27,41 +28,30 @@ class app extends container {
 		];
 		
 		/* merge sent in configuration over the defaults */
-		$this->data = array_replace_recursive($defaults,$container['configuration']);
+		self::$data = array_replace_recursive($defaults,$container->configuration);
 
 		/* setup timezone so PHP doesn't complain */
-		$this->data['timezone'] = ($this->data['timezone']) ? $this->data['timezone'] : ((!ini_get('date.timezone') ? 'UTC' : ini_get('date.timezone')));
+		self::$data['timezone'] = (self::$data['timezone']) ? self::$data['timezone'] : ((!ini_get('date.timezone') ? 'UTC' : ini_get('date.timezone')));
 		
-		date_default_timezone_set($this->data['timezone']);
+		/* set our timezone */
+		date_default_timezone_set(self::$data['timezone']);
 
 		/* setup our error display */
-		error_reporting($this->data['error_reporting']);
-		ini_set('display_errors', $this->data['display_errors']);
+		error_reporting(self::$data['error_reporting']);
+		ini_set('display_errors', self::$data['display_errors']);
 
 		/* add our modules to the search path */
 		$add = [];
 		
-		foreach ($this->data['packages'] as $name=>$path) {
-			$add[] = realpath($this->data['root'].'/'.$path.'/'.$name);
+		foreach (self::$data['packages'] as $name=>$path) {
+			$add[] = realpath(self::$data['root'].'/'.$path.'/'.$name);
 		}
 		
 		set_include_path(get_include_path().PATH_SEPARATOR.implode(PATH_SEPARATOR,$add));
 	} /* end __construct() */
 
-	public function env() {
-		return $this->data['environment_variable'];
-	}
-	
-	public function restful() {
-		return $this->data['restful'];
-	}
-	
-	public function timezone() {
-		return $this->data['timezone'];
-	}
-	
-	public function root() {
-		return $this->data['root'];
+	public function __get($name) {
+		return isset(self::$data[$name]) ? self::$data[$name] : NULL;
 	}
 	
 } /* end bootstrap */

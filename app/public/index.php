@@ -11,22 +11,22 @@ foreach ($config['packages'] as $name=>$path) {
 }
 
 /* the di container */
-$container = new \myersd\core\container($config);
+$c = new \myersd\core\container();
 
-/* setup the application with our config */
-$container->app = new \myersd\core\app($container);
+$c->configuration = function($c) use ($config) { return $config; };
+$c->app = function($c) { return new \myersd\core\app($c); };
+$c->input = function($c) { return new \myersd\core\input($c); };
+$c->output = function($c) { return new \myersd\core\output($c); };
 
-$container->input = new \myersd\core\input($container);
-$container->output = new \myersd\core\output($container);
+$c->config = function($c) { return new \myersd\libraries\config($c); };
+$c->view = function($c) { return new \myersd\libraries\view($c); };
 
-$container->config = new \myersd\libraries\config($container);
-$container->view = new \myersd\libraries\view($container);
-$container->log = new \myersd\libraries\log($container);
-$container->session = new \myersd\libraries\session($container);
+$c->log = function($c) { return new \myersd\libraries\log($c); };
+$c->session = function($c) { return new \myersd\libraries\session($c); };
 
-$container->log->emergency('Hello There');
+$c->log->emergency('Hello There');
 
-$container->router = new \myersd\core\router($container);
+$c->router = function($c) { return new \myersd\core\router($c); };
 
 /* route and respond */
-$container->router->route()->output->_display();
+$c->router->route()->output->_display();
