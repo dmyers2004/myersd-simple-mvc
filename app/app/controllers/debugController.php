@@ -1,12 +1,16 @@
 <?php 
 
-class debugController {
+class debugController extends \myersd\core\controller {
 
 	public function indexAction() {
-		app()->load('test.cnf');
+		//$this->app->load('test.cnf');
 	
 		echo '<pre>';
-		var_dump(app());
+		var_dump($this->container);
+	}
+
+	public function fooAction() {
+		echo 'bar!';
 	}
 
 }

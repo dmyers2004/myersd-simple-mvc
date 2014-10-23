@@ -3,9 +3,7 @@
 class barController {
 
 	public function indexAction() {
-		$data['name'] = 'Johnny Barseed';
-
-		return app()->view('welcome',$data);
+		echo 'Bar Controller Index Action';
 	}
 
 	public function logAction() {

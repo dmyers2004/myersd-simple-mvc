@@ -1,11 +1,15 @@
 <?php
 
-class mainController {
+use \myersd\core\controller;
+
+class mainController extends controller {
 
 	public function indexAction() {
-		$data['name'] = 'Johnny Appleseed';
+		$this->data['name'] = 'Johnny Appleseed';
+		
+		$page = $this->app->view->render('index',$this->data);
 
-		return app()->view('index',$data);
+		$this->app->response->set_output($page);
 	}
 
 }

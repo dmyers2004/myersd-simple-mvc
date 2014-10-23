@@ -1,11 +1,15 @@
 <?php 
-class Config_Not_Found_Exception extends Exception { }
+namespace myersd\libraries;
 
-class config {
+use myersd\core\container;
+
+class Config_Not_Found_Exception extends \Exception { }
+
+class config extends container 	{
 	protected $app;
 	protected $config;
 
-	public function __get($name) {
+	public function x__get($name) {
 		return @$this->config->$name;
 	}
 

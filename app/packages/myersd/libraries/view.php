@@ -1,9 +1,14 @@
 <?php
-class View_Not_Found_Exception extends Exception { }
 
-class view {
+namespace myersd\libraries;
 
-	public function view($_mvc_view_name=NULL,$_mvc_view_data=[]) {
+use myersd\core\container;
+
+class View_Not_Found_Exception extends \Exception { }
+
+class view extends container {
+
+	public function render($_mvc_view_name=NULL,$_mvc_view_data=[]) {
 		if (is_string($_mvc_view_name)) {
 			/* is it there? */
 			if ($_mvc_view_file = stream_resolve_include_path('views/'.$_mvc_view_name.'.php')) {
