@@ -1,9 +1,13 @@
 <?php
+namespace myersd\libraries;
 
-class log {
-	protected $app;
+use myersd\core\container;
+
+class log extends container {
 	protected $log_level = 0;
 	protected $log_file;
+	protected $log_format;
+	protected $log_generic;
 
 	protected $psr_levels = [
 		'EMERGENCY' => 1,
@@ -26,36 +30,39 @@ class log {
 		'EMERGENCY'	=> 600,
 	];
 
-	public function __call($level,$value='') {
+	public function init() {
+		$this->log_level = $this->container->config->item('log','log_level');
+		$this->log_file = $this->container->app->root().$this->container->config->item('log','log_file');
+		$this->log_format = $this->container->config->item('log','log_format','Y-m-d H:i:s');
+		$this->log_generic = $this->container->config->item('log','log_generic','GENERAL');
+	} /* end init */
+
+	public function __call($level,$value) {
 		$level = strtoupper($level);
 
 		if (array_key_exists($level, $this->psr_levels)) {
-			return $this->log($level,$value[0]);
+			return $this->_write($level,$value[0]);
 		}
 
 		return FALSE;
-	}
+	} /* end __call */
 
-	public function log($level, $msg='') {
-		if (is_a($level,'app')) {
-			$this->app = $level;
+	public function write($msg, $level) {
+		$level = ($level) ? $level : $this->log_generic;
+	
+		return file_put_contents($this->log_file,date($this->log_format).' '.$level.' '.$msg.chr(10),FILE_APPEND);
+	} /* end write */
 
-			$this->log_level = $level->init->log_level;
-			$this->log_file = $level->init->log_file;
+	protected function _write($level, $msg='') {
+		if ($this->log_level > 0) {
+			$level = strtoupper($level);
 
-		} elseif (is_string($msg)) {
-
-
-			if ($this->log_level > 0) {
-				$level = strtoupper($level);
-
-				if ((!array_key_exists($level,$this->psr_levels)) || (!($this->log_level & $this->psr_levels[$level]))) {
-					return FALSE;
-				}
-
-				return file_put_contents($this->log_file,date('Y-m-d H:i:s').' '.$level.' '.$msg.chr(10),FILE_APPEND);
+			if ((!array_key_exists($level,$this->psr_levels)) || (!($this->log_level & $this->psr_levels[$level]))) {
+				return FALSE;
 			}
+			
+			return $this->write($msg,$level);
 		}
-	}
+	} /* end _write */
 
 } /* end log */

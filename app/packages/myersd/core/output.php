@@ -1,7 +1,7 @@
 <?php
 namespace myersd\core;
 
-class response extends container {
+class output extends container {
 	protected $final_output;
 	protected $headers = [];
 	protected $mimes = [];
@@ -17,12 +17,9 @@ class response extends container {
 
 	}
 
-	public function get_content_type()
-	{
-		for ($i = 0, $c = count($this->headers); $i < $c; $i++)
-		{
-			if (sscanf($this->headers[$i][0], 'Content-Type: %[^;]', $content_type) === 1)
-			{
+	public function get_content_type() {
+		for ($i = 0, $c = count($this->headers); $i < $c; $i++) {
+			if (sscanf($this->headers[$i][0], 'Content-Type: %[^;]', $content_type) === 1) {
 				return $content_type;
 			}
 		}
@@ -53,23 +50,26 @@ class response extends container {
 
 	public function append_output($output) {
 		$this->final_output .= $output;
+
 		return $this;
 	}
 
 	public function set_header($header, $replace = TRUE) {
 		$this->headers[] = [$header, $replace];
+
 		return $this;
 	}
 
 	public function set_status_header($code = 200, $text = '') {
 		set_status_header($code, $text);
+
 		return $this;
 	}
 
 	/* dump the output */
-	public function _display($output='') {
+	public function _display($output=NULL) {
 		// Set the output data
-		if ($output === '') {
+		if ($output === NULL) {
 			$output = $this->final_output;
 		}
 

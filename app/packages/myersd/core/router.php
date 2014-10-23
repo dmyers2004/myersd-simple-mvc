@@ -3,16 +3,12 @@ namespace myersd\core;
 
 class router extends container {
 
-	public function route() {
-		$container = $this->container;
+	public function route($uri=NULL) {
+		$container = &$this->container;
 	
-		$container['request']['uri'] = (trim($container['request']['server']['REQUEST_URI'],'/') == '') ? $container['app']['default_controller'].'/'.$container['app']['default_method'] : $container['request']['server']['REQUEST_URI'];
+		$segs = $container->input->prep_uri($uri);
 
-		/* get the uri (uniform resource identifier) and preform some basic clean up */
-		$container['request']['uri'] = filter_var(trim($container['request']['uri'],'/'),FILTER_SANITIZE_URL);
-
-		/* ok let's split these up for futher processing */
-		$container['request']['segments'] = explode('/',$container['request']['uri']);
+		$segs = ($segs[0] == '') ? [$container['app']['default_controller'],$container['app']['default_method']] : $segs;
 
 		/* setup the defaults */
 		$container['app']['controller'] = $container['app']['default_controller'];
@@ -23,7 +19,7 @@ class router extends container {
 		$container['app']['controller_path'] = '';
 
 		/* keep shifting off directories until we get a match */
-		foreach ($container['request']['segments'] as $idx=>$seg) {
+		foreach ($segs as $idx=>$seg) {
 
 			/* what controller are we testing for? */
 			$container['app']['classname'] = str_replace('-','_',$seg).'Controller';
@@ -33,10 +29,10 @@ class router extends container {
 				$container['app']['controller'] = substr($container['app']['classname'],0,-10);
 
 				/* what's the method? */
-				$container['app']['method'] = (isset($container['request']['segments'][$idx+1])) ? str_replace('-','_',$container['request']['segments'][$idx+1]) : $container['app']['default_method'];
+				$container['app']['method'] = (isset($segs[$idx+1])) ? str_replace('-','_',$segs[$idx+1]) : $container['app']['default_method'];
 
 				/* what are the parameters? */
-				$container['app']['parameters'] = array_slice($container['request']['segments'],$idx+2);
+				$container['app']['parameters'] = array_slice($segs,$idx+2);
 
 				/* load that controller */
 				include $container['app']['controller_path'];
@@ -58,7 +54,7 @@ class router extends container {
 		$controller = new $container['app']['classname']($container);
 
 		/* what method are we going to try to call? */
-		$container['app']['called'] = $container['app']['method'].$container['request']['method'].'Action';
+		$container['app']['called'] = $container['app']['method'].$container['input']['method'].'Action';
 
 		/* does that method even exist? */
 		if (method_exists($controller, $container['app']['called'])) {

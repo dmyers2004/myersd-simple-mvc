@@ -18,6 +18,10 @@ class container implements \ArrayAccess {
 			} elseif (is_a($input,'myersd\core\container')) {
 				$this->container = &$input;
 			}
+			
+			if (method_exists($this,'init')) {
+				$this->init();
+			}
 		}
 
 		/**

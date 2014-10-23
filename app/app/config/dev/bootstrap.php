@@ -1,9 +1,10 @@
 <?php 
 
 $config = [
+	'timezone'=>'America/New_York',
 	'error_reporting'=>E_ALL,
 	'display_errors'=>1,
-	'path'=>realpath(__DIR__.'/../../../../'),
+	'root'=>realpath(__DIR__.'/../../..'),
 	'packages'=>[
 		''=>'app',
 		'myersd'=>'packages'

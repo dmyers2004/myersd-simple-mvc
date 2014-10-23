@@ -1,7 +1,7 @@
 <?php
 namespace myersd\core;
 
-class request extends container {
+class input extends container {
 
 	public function __construct(container &$container) {
 		$this->data['server'] = $container['app']['server'];
@@ -23,7 +23,7 @@ class request extends container {
 		$this->data['base_url'] = trim('http'.(($this->data['https']) ? 's' : '').'://'.$container['server']['HTTP_HOST'].dirname($container['server']['SCRIPT_NAME']),'/');
 
 		/* what type of request for REST or other */
-		$this->data['raw_method'] = ucfirst(strtolower($container['server']['REQUEST_METHOD']));
+		$this->data['raw_method'] = ucfirst(strtolower($this->data['server']['REQUEST_METHOD']));
 
 		/*
 		is this a restful app?
@@ -36,6 +36,22 @@ class request extends container {
 		if ($this->data['raw_method'] == 'Put') {
 			parse_str(file_get_contents('php://input'), $this->data['put']);
 		}
+	}
+	
+	public function prep_uri($uri=NULL) {
+		$uri = ($uri) ? $uri : $this->data['server']['REQUEST_URI']; 
+
+		/* get the uri (uniform resource identifier) and preform some basic clean up */
+		$this->data['uri'] = filter_var(trim($uri,'/'),FILTER_SANITIZE_URL);
+
+		/* ok let's split these up for futher processing */
+		$this->data['segments'] = explode('/',$this->data['uri']);
+		
+		return $this->data['segments'];
+	}
+	
+	public function data() {
+		return $this->data;
 	}
 	
 	public function is_ajax() {

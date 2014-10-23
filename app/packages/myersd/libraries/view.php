@@ -33,7 +33,7 @@ class view extends container {
 		}
 		
 		if ($output) {
-			$this->container->response->set_output($output);
+			$this->container->output->set_output($output);
 		}
 		
 		return $output;

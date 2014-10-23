@@ -3,48 +3,48 @@ namespace myersd\libraries;
 
 use myersd\core\container;
 
-class Config_Not_Found_Exception extends \Exception { }
+class Config_Variable_Not_Found_Exception extends \Exception { }
 
-class config extends container 	{
-	protected $app;
-	protected $config;
-
-	public function x__get($name) {
-		return @$this->config->$name;
-	}
-
-	public function config($name=NULL,$env=NULL) {
-		if (is_a($name,'app')) {
-			$this->app = $name;
+class config extends container {
+	public function item($filename,$field=NULL,$default=NULL) {
+		if (!isset($this->data[$filename])) {
+			$env = $this->container->app->env();
+			$env_value = $this->container->input->server($env);
 			
-			$this->config = new stdClass;
-			
-		} elseif (is_string($name)) {
-			$env = ($env) ? $env : @$this->app->properties->server->{$this->app->init->config_env};
+			/* default empty */
+			$base_config = $env_config = [];
 	
-			if ($filename = stream_resolve_include_path('config/'.$name.'.php')) {
-				/* include the config file */
-				include_once $filename;
-		
-				$base_config = $config;
+			if ($config_filename = stream_resolve_include_path('config/'.$filename.'.php')) {
+				include $config_filename;
 	
-				if ($env) {
-					if ($filename = stream_resolve_include_path('config/'.$env.'/'.$name.'.php')) {
-						include_once $filename;
-	
-						$base_config = array_replace_recursive($base_config,$config);
-					}
+				if (!isset($config)) {
+					throw new Config_Variable_Not_Found_Exception('Config variable not found in '.$filename,809);			
 				}
 	
-				/* attach it to the app */
-				$this->config->$name = (object)$base_config;
-	
-				/* this fills $config so return it */
-				return $this->config->$name;
-			} else {
-				throw new Config_Not_Found_Exception('Config File config/'.$name.'.php Not Found',803);
+				$base_config = $config;
 			}
-		}
-	}
+	
+			if ($env_value) {
+				if ($config_filename = stream_resolve_include_path('config/'.$env_value.'/'.$filename.'.php')) {
+					include $config_filename;
+	
+					if (!isset($config)) {
+						throw new Config_Variable_Not_Found_Exception('Config variable not found in '.$filename,810);			
+					}
+	
+					$env_config = $config;
+				}
 
-}
+			}
+
+			$this->data[$filename] = array_replace_recursive($base_config,$env_config);
+		}
+		
+		if ($field) {
+			return (!isset($this->data[$filename][$field])) ? $default : $this->data[$filename][$field];
+		} else {
+			return $this->data[$filename];
+		}
+	} /* end item */
+
+} /* end config */

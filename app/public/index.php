@@ -16,13 +16,17 @@ $container = new \myersd\core\container($config);
 /* setup the application with our config */
 $container->app = new \myersd\core\app($container);
 
-$container->request = new \myersd\core\request($container);
-$container->response = new \myersd\core\response($container);
+$container->input = new \myersd\core\input($container);
+$container->output = new \myersd\core\output($container);
 
-$container->view = new \myersd\libraries\view($container);
 $container->config = new \myersd\libraries\config($container);
+$container->view = new \myersd\libraries\view($container);
+$container->log = new \myersd\libraries\log($container);
+$container->session = new \myersd\libraries\session($container);
+
+$container->log->emergency('Hello There');
 
 $container->router = new \myersd\core\router($container);
 
 /* route and respond */
-$container->router->route()->response->_display();
+$container->router->route()->output->_display();
