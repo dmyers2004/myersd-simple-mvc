@@ -3,9 +3,9 @@ namespace myersd\core;
 
 class router extends container {
 
-	public function __construct(container &$container) {
-		parent::__construct($container);
-
+	public function route() {
+		$container = $this->container;
+	
 		$container['request']['uri'] = (trim($container['request']['server']['REQUEST_URI'],'/') == '') ? $container['app']['default_controller'].'/'.$container['app']['default_method'] : $container['request']['server']['REQUEST_URI'];
 
 		/* get the uri (uniform resource identifier) and preform some basic clean up */
@@ -63,11 +63,13 @@ class router extends container {
 		/* does that method even exist? */
 		if (method_exists($controller, $container['app']['called'])) {
 			/* call the method and echo what's returned */
-			return call_user_func_array(array($controller,$container['app']['called']),$container['app']['parameters']);
+			call_user_func_array(array($controller,$container['app']['called']),$container['app']['parameters']);
 		} else {
 			/* no throw a error */
 			throw new Method_Not_Found_Exception('Method '.$container['app']['called'].' Not Found',801);
 		}
+
+		return $container;
 	} /* end route */
 
 } /* end router */

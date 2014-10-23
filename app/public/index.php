@@ -24,4 +24,4 @@ $container->config = new \myersd\libraries\config($container);
 
 $container->router = new \myersd\core\router($container);
 
-$container->response->_display();
+$container->router->route()->response->_display();
