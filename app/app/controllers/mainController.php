@@ -32,7 +32,19 @@ class mainController extends controller {
 		echo '<pre>';
 		
 		var_dump($this->app->input->data());
+	}
 	
+	public function appAction() {
+		echo '<pre>';
+		
+		var_dump($this->app->app->controller());
+		var_dump($this->app->app->classname());
+		var_dump($this->app->app->method());
+		var_dump($this->app->app->parameters());
+		var_dump($this->app->app->directory());
+		var_dump($this->app->app->controller_path());
+		var_dump($this->app->app->called());
+
 	}
 
 }

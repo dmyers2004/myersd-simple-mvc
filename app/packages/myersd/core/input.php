@@ -66,16 +66,13 @@ class input extends container {
 		return $this->data['base_url'];
 	}
 	
+	/* http method */
 	public function method() {
 		return $this->data['method'];
 	}
 	
 	public function raw_method() {
 		return $this->data['raw_method'];
-	}
-	
-	protected function internal($key,$name,$default) {
-		return (isset($this->data[$key][$name])) ? $this->data[$key][$name] : $default;
 	}
 	
 	public function post($name,$default=NULL) {
@@ -109,5 +106,9 @@ class input extends container {
 	public function put($name,$default=NULL) {
 		return $this->internal('put',$name,$default);
 	}
-
+	
+	protected function internal($key,$name,$default) {
+		return (isset($this->data[$key][$name])) ? $this->data[$key][$name] : $default;
+	}
+	
 } /* end request */

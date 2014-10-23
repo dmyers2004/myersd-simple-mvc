@@ -5,26 +5,6 @@ class Controller_Not_Found_Exception extends \Exception {}
 class Method_Not_Found_Exception extends \Exception {}
 
 class app extends container {
-
-	public function env() {
-		return $this->data['environment_variable'];
-	}
-	
-	public function restful() {
-		return $this->data['restful'];
-	}
-	
-	public function timezone() {
-		return $this->data['timezone'];
-	}
-	
-	public function root() {
-		return $this->data['root'];
-	}
-
-	public function data() {
-		return $this->data;
-	}
 	
 	public function __construct(container &$container) {
 		/* You can send in 1 or more of these for mocking */
@@ -68,4 +48,48 @@ class app extends container {
 		set_include_path(get_include_path().PATH_SEPARATOR.implode(PATH_SEPARATOR,$add));
 	} /* end __construct() */
 
+	public function env() {
+		return $this->data['environment_variable'];
+	}
+	
+	public function restful() {
+		return $this->data['restful'];
+	}
+	
+	public function timezone() {
+		return $this->data['timezone'];
+	}
+	
+	public function root() {
+		return $this->data['root'];
+	}
+
+	public function controller() {
+		return $this->data['controller'];
+	}
+
+	public function classname() {
+		return $this->data['classname'];
+	}
+
+	public function method() {
+		return $this->data['method'];
+	}
+	
+	public function parameters() {
+		return $this->data['parameters'];
+	}
+	
+	public function directory() {
+		return $this->data['directory'];
+	}
+	
+	public function controller_path() {
+		return $this->data['controller_path'];
+	}
+	
+	public function called() {
+		return $this->data['called'];
+	}
+	
 } /* end bootstrap */
