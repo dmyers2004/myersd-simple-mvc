@@ -4,68 +4,96 @@ namespace myersd\core;
 class router extends container {
 
 	public function route($uri=NULL) {
-		$container = &$this->container;
-	
-		$segs = $container->input->prep_uri($uri);
+		/* have the input object prep/save the uri */
+		$segs = $this->container->input->prep_uri($uri);
 
-		$segs = ($segs[0] == '') ? [$container['app']['default_controller'],$container['app']['default_method']] : $segs;
+		$segs = ($segs[0] == '') ? [$this->container['app']['default_controller'],$this->container['app']['default_method']] : $segs;
 
 		/* setup the defaults */
-		$container['app']['controller'] = $container['app']['default_controller'];
-		$container['app']['classname'] = $container['app']['default_controller'].'Controller';
-		$container['app']['method'] = $container['app']['default_method'];
-		$container['app']['parameters'] = [];
-		$container['app']['directory'] = '';
-		$container['app']['controller_path'] = '';
+		$this->data['controller'] = '';
+		$this->data['classname'] = '';
+		$this->data['method'] = '';
+		$this->data['parameters'] = [];
+		$this->data['directory'] = '';
+		$this->data['controller_path'] = '';
+
+echo '<pre>';
 
 		/* keep shifting off directories until we get a match */
 		foreach ($segs as $idx=>$seg) {
-
 			/* what controller are we testing for? */
-			$container['app']['classname'] = str_replace('-','_',$seg).'Controller';
+			$this->data['classname'] = str_replace('-','_',$seg).'Controller';
 
-			if ($container['app']['controller_path'] = stream_resolve_include_path('controllers/'.$container['app']['directory'].$container['app']['classname'].'.php')) {
+			if ($this->data['controller_path'] = stream_resolve_include_path('controllers/'.$this->data['directory'].$this->data['classname'].'.php')) {
 				/* match */
-				$container['app']['controller'] = substr($container['app']['classname'],0,-10);
+				$this->data['controller'] = substr($this->data['classname'],0,-10);
 
 				/* what's the method? */
-				$container['app']['method'] = (isset($segs[$idx+1])) ? str_replace('-','_',$segs[$idx+1]) : $container['app']['default_method'];
+				$this->data['method'] = (isset($segs[$idx+1])) ? str_replace('-','_',$segs[$idx+1]) : $this->container['app']['default_method'];
 
 				/* what are the parameters? */
-				$container['app']['parameters'] = array_slice($segs,$idx+2);
+				$this->data['parameters'] = array_slice($segs,$idx+2);
 
 				/* load that controller */
-				include $container['app']['controller_path'];
+				include $this->data['controller_path'];
 
 				/* get out of here we found a match! */
 				break;
 			}
 
 			/* we didn't find a match yet so add that segement to the directory */
-			$container['app']['directory'] .= $seg.'/';
+			$this->data['directory'] .= $seg.'/';
 		}
 
 		/* was a class loaded */
-		if (!class_exists($container['app']['classname'])) {
-			throw new Controller_Not_Found_Exception('Controller File '.$container['app']['classname'].'.php Not Found',800);
+		if (!class_exists($this->data['classname'])) {
+			throw new Controller_Not_Found_Exception('Controller File '.$this->data['classname'].'.php Not Found',800);
 		}
 
 		/* try to instantiate the controller */
-		$controller = new $container['app']['classname']($container);
+		$controller = new $this->data['classname']($this->container);
 
 		/* what method are we going to try to call? */
-		$container['app']['called'] = $container['app']['method'].$container['input']['method'].'Action';
+		$this->data['called'] = $this->data['method'].$this->container['input']['method'].'Action';
 
 		/* does that method even exist? */
-		if (method_exists($controller, $container['app']['called'])) {
+		if (method_exists($controller, $this->data['called'])) {
 			/* call the method and echo what's returned */
-			call_user_func_array(array($controller,$container['app']['called']),$container['app']['parameters']);
+			call_user_func_array(array($controller,$this->data['called']),$this->data['parameters']);
 		} else {
 			/* no throw a error */
-			throw new Method_Not_Found_Exception('Method '.$container['app']['called'].' Not Found',801);
+			throw new Method_Not_Found_Exception('Method '.$this->data['called'].' Not Found',801);
 		}
 
-		return $container;
+		return $this->container;
 	} /* end route */
 
+	public function controller() {
+		return $this->data['controller'];
+	}
+
+	public function classname() {
+		return $this->data['classname'];
+	}
+
+	public function method() {
+		return $this->data['method'];
+	}
+	
+	public function parameters() {
+		return $this->data['parameters'];
+	}
+	
+	public function directory() {
+		return $this->data['directory'];
+	}
+	
+	public function controller_path() {
+		return $this->data['controller_path'];
+	}
+	
+	public function called() {
+		return $this->data['called'];
+	}
+	
 } /* end router */

@@ -34,17 +34,26 @@ class mainController extends controller {
 		var_dump($this->app->input->data());
 	}
 	
+	public function routerAction() {
+		echo '<pre>';
+		
+		var_dump($this->app->router->controller());
+		var_dump($this->app->router->classname());
+		var_dump($this->app->router->method());
+		var_dump($this->app->router->parameters());
+		var_dump($this->app->router->directory());
+		var_dump($this->app->router->controller_path());
+		var_dump($this->app->router->called());
+
+	}
+
 	public function appAction() {
 		echo '<pre>';
 		
-		var_dump($this->app->app->controller());
-		var_dump($this->app->app->classname());
-		var_dump($this->app->app->method());
-		var_dump($this->app->app->parameters());
-		var_dump($this->app->app->directory());
-		var_dump($this->app->app->controller_path());
-		var_dump($this->app->app->called());
-
+		var_dump($this->app->app->timezone());
+		var_dump($this->app->app->env());
+		var_dump($this->app->app->restful());
+		var_dump($this->app->app->root());
 	}
 
 }
