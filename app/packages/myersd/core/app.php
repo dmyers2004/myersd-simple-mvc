@@ -6,17 +6,15 @@ class Method_Not_Found_Exception extends \Exception {}
 
 class app extends container {
 
-	public function __construct(container &$container, array &$config) {
-		/* defaults */
+	public function __construct(container &$container) {
+		/* You can send in 1 or more of these for mocking */
 		$defaults = [
-			'config_env'=>'ENV',
+			'environment_variable'=>'ENV',
 			'default_controller'=>'main',
 			'default_method'=>'index',
 			'restful'=>TRUE,
-			'path'=>__DIR__,
 			'error_reporting'=>E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT,
 			'display_errors'=>0,
-			'search'=>__DIR__.'/app/',
 			'server'=>$_SERVER,
 			'post'=>$_POST,
 			'get'=>$_GET,
@@ -27,8 +25,9 @@ class app extends container {
 			'session'=>@$_SESSION, /* send it in on mocking */
 			'put'=>[],
 		];
-
-		$this->data = array_replace_recursive($defaults,$config);
+		
+		/* merge sent in configuration over the defaults */
+		$this->data = array_replace_recursive($defaults,$container['configuration']);
 
 		/* setup timezone so PHP doesn't complain */
 		if (!ini_get('date.timezone')) {
@@ -45,7 +44,7 @@ class app extends container {
 		/* add our modules to the search path */
 		$add = [];
 		
-		foreach ($config['packages'] as $name=>$path) {
+		foreach ($this->data['packages'] as $name=>$path) {
 			$add[] = realpath(__DIR__.'/../../../'.$path.'/'.$name);
 		}
 		

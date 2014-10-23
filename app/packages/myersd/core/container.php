@@ -14,7 +14,7 @@ class container implements \ArrayAccess {
 
 		public function __construct(&$input=[]) {
 			if (is_array($input)) {
-				$this->data = &$input;
+				$this->data['configuration'] = &$input;
 			} elseif (is_a($input,'myersd\core\container')) {
 				$this->container = &$input;
 			}

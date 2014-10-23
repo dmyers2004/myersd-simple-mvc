@@ -11,10 +11,10 @@ foreach ($config['packages'] as $name=>$path) {
 }
 
 /* the di container */
-$container = new \myersd\core\container();
+$container = new \myersd\core\container($config);
 
 /* setup the application with our config */
-$container->app = new \myersd\core\app($container,$config);
+$container->app = new \myersd\core\app($container);
 
 $container->request = new \myersd\core\request($container);
 $container->response = new \myersd\core\response($container);
@@ -24,4 +24,5 @@ $container->config = new \myersd\libraries\config($container);
 
 $container->router = new \myersd\core\router($container);
 
+/* route and respond */
 $container->router->route()->response->_display();
