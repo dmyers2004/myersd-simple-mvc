@@ -15,12 +15,13 @@ $c = new \myersd\core\container();
 
 $c->configuration = function($c) use ($config) { return $config; };
 $c->app = function($c) { return new \myersd\core\app($c); };
+$c->event = function($c) { return new \myersd\core\event($c); };
+
 $c->input = function($c) { return new \myersd\core\input($c); };
 $c->output = function($c) { return new \myersd\core\output($c); };
 
 $c->config = function($c) { return new \myersd\libraries\config($c); };
 $c->view = function($c) { return new \myersd\libraries\view($c); };
-
 $c->log = function($c) { return new \myersd\libraries\log($c); };
 $c->session = function($c) { return new \myersd\libraries\session($c); };
 

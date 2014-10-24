@@ -48,7 +48,6 @@ class mainController extends controller {
 		var_dump($this->app->router->directory());
 		var_dump($this->app->router->controller_path());
 		var_dump($this->app->router->called());
-
 	}
 
 	public function appAction() {

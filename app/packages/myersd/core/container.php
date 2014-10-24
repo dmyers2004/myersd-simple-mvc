@@ -11,4 +11,5 @@ class container {
 	public function __get($k){
 		return $this->s[$k]($this);
 	}
+	
 } /* end container */
