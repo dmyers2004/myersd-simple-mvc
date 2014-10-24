@@ -4,10 +4,17 @@ namespace myersd\core;
 class input {
 	protected static $data = [];
 	protected static $c;
+	protected static $init = FALSE;
 
 	public function __construct(container &$container) {
 		self::$c = $container;
 
+		if (!self::$init) {
+			$this->init($container);
+		}
+	}
+
+	protected function init(container &$container) {
 		$capture = ['server','post','get','cookie','env','files','request','put'];
 
 		foreach ($capture as $c) {
@@ -36,8 +43,10 @@ class input {
 
 		/* PHP doesn't handle PUT very well so we need to capture that manually */
 		if (self::$data['raw_method'] == 'Put') {
-			parse_str(file_get_contents('php://input'), self::$data['put']);
+			parse_str(file_get_contents('php://input'),self::$data['put']);
 		}
+		
+		self::$init = TRUE;
 	}
 
 	public function prep_uri($uri=NULL) {
@@ -103,6 +112,38 @@ class input {
 
 	public function put($name,$default=NULL) {
 		return $this->internal('put',$name,$default);
+	}
+
+	public function all_post() {
+		return self::$data['post'];
+	}
+	
+	public function all_put() {
+		return self::$data['put'];
+	}
+	
+	public function all_get() {
+		return self::$data['get'];
+	}
+	
+	public function all_server() {
+		return self::$data['server'];
+	}
+	
+	public function all_cookie() {
+		return self::$data['cookie'];
+	}
+	
+	public function all_env() {
+		return self::$data['env'];
+	}
+	
+	public function all_request() {
+		return self::$data['request'];
+	}
+	
+	public function all_files() {
+		return self::$data['files'];
 	}
 
 	protected function internal($key,$name,$default) {

@@ -1,13 +1,17 @@
 <?php
 namespace myersd\core;
 
-class Controller_Not_Found_Exception extends \Exception {}
-class Method_Not_Found_Exception extends \Exception {}
-
 class app {
 	protected static $data = [];
+	protected static $init = FALSE;
 	
 	public function __construct(container &$container) {
+		if (!self::$init) {
+			$this->init($container);
+		}
+	} /* end __construct() */
+
+	protected function init(container &$container) {
 		/* You can send in 1 or more of these for mocking */
 		$defaults = [
 			'environment_variable'=>'ENV',
@@ -48,7 +52,9 @@ class app {
 		}
 		
 		set_include_path(get_include_path().PATH_SEPARATOR.implode(PATH_SEPARATOR,$add));
-	} /* end __construct() */
+		
+		self::$init = TRUE;
+	}
 
 	public function __get($name) {
 		return isset(self::$data[$name]) ? self::$data[$name] : NULL;

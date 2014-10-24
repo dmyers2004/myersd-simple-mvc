@@ -1,9 +1,13 @@
 <?php
 namespace myersd\core;
 
+class Controller_Not_Found_Exception extends \Exception {}
+class Method_Not_Found_Exception extends \Exception {}
+
 class router {
 	protected static $data = [];
 	protected static $c;
+	protected static $controller;
 	
 	public function __construct(container &$container) {
 		self::$c = $container;
@@ -33,7 +37,7 @@ class router {
 				self::$data['controller'] = substr(self::$data['classname'],0,-10);
 
 				/* what's the method? */
-				self::$data['method'] = (isset($segs[$idx+1])) ? str_replace('-','_',$segs[$idx+1]) : self::$container['app']['default_method'];
+				self::$data['method'] = (isset($segs[$idx+1])) ? str_replace('-','_',$segs[$idx+1]) : self::$c->app->default_method;
 
 				/* what are the parameters? */
 				self::$data['parameters'] = array_slice($segs,$idx+2);
@@ -55,15 +59,20 @@ class router {
 		}
 
 		/* try to instantiate the controller */
-		$controller = new self::$data['classname'](self::$c);
+		self::$controller = new self::$data['classname'](self::$c);
 
 		/* what method are we going to try to call? */
 		self::$data['called'] = self::$data['method'].self::$c->input->method().'Action';
 
+		if (method_exists(self::$controller,'_remap')) {
+			self::$data['parameters'] = [self::$data['called'],self::$data['parameters']];
+			self::$data['called'] = '_remap';
+		}
+
 		/* does that method even exist? */
-		if (method_exists($controller, self::$data['called'])) {
+		if (method_exists(self::$controller, self::$data['called'])) {
 			/* call the method and echo what's returned */
-			call_user_func_array(array($controller,self::$data['called']),self::$data['parameters']);
+			echo call_user_func_array([self::$controller,self::$data['called']],self::$data['parameters']);
 		} else {
 			/* no throw a error */
 			throw new Method_Not_Found_Exception('Method '.self::$data['called'].' Not Found',801);
@@ -71,6 +80,10 @@ class router {
 
 		return self::$c;
 	} /* end route */
+
+	public function controller_obj() {
+		return self::$controller;
+	}
 
 	public function controller() {
 		return self::$data['controller'];

@@ -10,24 +10,20 @@ foreach ($config['packages'] as $name=>$path) {
 	$loader->add($name, realpath(__DIR__.'/../'.$path));
 }
 
-/* the di container */
 $c = new \myersd\core\container();
 
 $c->configuration = function($c) use ($config) { return $config; };
 $c->app = function($c) { return new \myersd\core\app($c); };
+$c->router = function($c) { return new \myersd\core\router($c); };
 $c->event = function($c) { return new \myersd\core\event($c); };
 
 $c->input = function($c) { return new \myersd\core\input($c); };
 $c->output = function($c) { return new \myersd\core\output($c); };
 
 $c->config = function($c) { return new \myersd\libraries\config($c); };
-$c->view = function($c) { return new \myersd\libraries\view($c); };
 $c->log = function($c) { return new \myersd\libraries\log($c); };
 $c->session = function($c) { return new \myersd\libraries\session($c); };
-
-$c->log->emergency('Hello There');
-
-$c->router = function($c) { return new \myersd\core\router($c); };
+$c->view = function($c) { return new \myersd\libraries\view($c); };
 
 /* route and respond */
-$c->router->route()->output->_display();
+$c->router->route()->output->display();

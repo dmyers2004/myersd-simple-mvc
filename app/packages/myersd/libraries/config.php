@@ -25,7 +25,7 @@ class config {
 				include $config_filename;
 
 				if (!isset($config)) {
-					throw new Config_Variable_Not_Found_Exception('Config variable not found in '.$filename,809);
+					throw new Config_Variable_Not_Found_Exception('Config variable not found in config/'.$filename.'.php',809);
 				}
 
 				$base_config = $config;
@@ -36,7 +36,7 @@ class config {
 					include $config_filename;
 
 					if (!isset($config)) {
-						throw new Config_Variable_Not_Found_Exception('Config variable not found in '.$filename,810);
+						throw new Config_Variable_Not_Found_Exception('Config variable not found in config/'.$env_value.'/'.$filename.'.php',810);
 					}
 
 					$env_config = $config;
