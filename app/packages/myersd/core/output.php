@@ -118,4 +118,43 @@ class output {
 		}
 	}
 
+	public function nocache() {
+		$this->set_header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
+		$this->set_header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
+		$this->set_header('Cache-Control: post-check=0, pre-check=0', FALSE);
+		$this->set_header('Pragma: no-cache');
+
+		/* allow chaining */
+		return $this;
+	}
+
+	/* wrapper for input delete cookie */
+	public function delete_cookie($name='',$domain='',$path='/',$prefix='') {
+		$this->c->input->set_cookie($name,'','',$domain,$path,$prefix);
+
+		/* allow chaining */
+		return $this;
+	}
+
+	/* wrapper for setting a cookie */
+	public function cookie($name = '', $value = '', $expire = '', $domain = '', $path = '/', $prefix = '', $secure = FALSE, $httponly = FALSE) {
+		$this->c->input->set_cookie($name, $value, $expire, $domain, $path, $prefix, $secure,$httponly);
+
+		/* allow chaining */
+		return $this;
+	}
+
+	public function json($data=array(),$val=NULL) {
+		$data = ($val !== NULL) ? array($data=>$val) : $data;
+		$json = (is_array($data)) ? json_encode($data) : $data;
+
+		$this
+			->nocache()
+			->set_content_type('application/json','utf=8')
+			->set_output($json);
+
+		/* allow chaining */
+		return $this;
+	}
+	
 } /* end response */

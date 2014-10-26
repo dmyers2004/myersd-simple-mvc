@@ -257,4 +257,13 @@ class validate {
 		return (bool)(count($this->_error_array) == 0);
 	} /* end multiple */
 
+	public function post($rules='',$index='') {
+		$field = $this->c->input->post($index);
+
+		/* filter post and die on fail */
+		$this->validate->single($rules,$field);
+
+		return $this; /* allow chaining */
+	}
+
 } /* end validate class */

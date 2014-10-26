@@ -35,7 +35,7 @@ class log {
 		$this->c = $container;
 
 		$this->log_level = $this->c->config->item('log','log_level');
-		$this->log_file = $this->c->app->root.$this->c->config->item('log','log_file');
+		$this->log_file = $this->c->app->root().$this->c->config->item('log','log_file');
 		$this->log_format = $this->c->config->item('log','log_format','Y-m-d H:i:s');
 		$this->log_generic = $this->c->config->item('log','log_generic','GENERAL');
 	}

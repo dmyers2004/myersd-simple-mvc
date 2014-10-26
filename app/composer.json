@@ -4,10 +4,9 @@
 				"guzzlehttp/guzzle": "~5.0",
 				"j4mie/paris": "dev-master",
 				"filp/whoops": "~1.0",
-				"fuelphp/event": "dev-master",
-				"fuelphp/config": "dev-master",
 				"brick/event": "dev-master",
 				"werx/config": "dev-master",
-				"teacup/log": "dev-master"
+				"teacup/log": "dev-master",
+				"sokil/php-mongo": "dev-master"
 		}
 }

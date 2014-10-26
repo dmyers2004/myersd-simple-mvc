@@ -17,7 +17,7 @@ class router {
 		/* have the input object prep/save the uri */
 		$segs = $this->c->input->prep_uri($uri);
 
-		$segs = ($segs[0] == '') ? [$this->c->app->default_controller,$this->c->app->default_method] : $segs;
+		$segs = ($segs[0] == '') ? [$this->c->app->default_controller(),$this->c->app->default_method()] : $segs;
 
 		/* setup the defaults */
 		$this->data['controller'] = '';
@@ -37,7 +37,7 @@ class router {
 				$this->data['controller'] = substr($this->data['classname'],0,-10);
 
 				/* what's the method? */
-				$this->data['method'] = (isset($segs[$idx+1])) ? str_replace('-','_',$segs[$idx+1]) : $this->c->app->default_method;
+				$this->data['method'] = (isset($segs[$idx+1])) ? str_replace('-','_',$segs[$idx+1]) : $this->c->app->default_method();
 
 				/* what are the parameters? */
 				$this->data['parameters'] = array_slice($segs,$idx+2);
@@ -85,32 +85,8 @@ class router {
 		return $this->controller;
 	}
 
-	public function controller() {
-		return $this->data['controller'];
-	}
-
-	public function classname() {
-		return $this->data['classname'];
-	}
-
-	public function method() {
-		return $this->data['method'];
-	}
-	
-	public function parameters() {
-		return $this->data['parameters'];
-	}
-	
-	public function directory() {
-		return $this->data['directory'];
-	}
-	
-	public function controller_path() {
-		return $this->data['controller_path'];
-	}
-	
-	public function called() {
-		return $this->data['called'];
+	public function __get($name) {
+		return isset($this->data[$name]) ? $this->data[$name] : NULL;
 	}
 	
 } /* end router */

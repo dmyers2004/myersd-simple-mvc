@@ -31,7 +31,6 @@ $c->config = $c->shared(function($c) { return new \myersd\libraries\config($c); 
 $c->log = $c->shared(function($c) { return new \myersd\libraries\log($c); });
 $c->session = $c->shared(function($c) { return new \myersd\libraries\session($c); });
 $c->view = $c->shared(function($c) { return new \myersd\libraries\view($c); });
-
 $c->validate = $c->shared(function($c) { return new \myersd\libraries\validate($c); });
 
 /* route and respond */

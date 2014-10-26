@@ -15,7 +15,7 @@ class config {
 
 	public function item($filename,$field=NULL,$default=NULL) {
 		if (!isset($this->data[$filename])) {
-			$env = $this->c->app->environment_variable;			
+			$env = $this->c->app->environment_variable();			
 			$env_value = $this->c->input->server($env);
 
 			/* default empty */

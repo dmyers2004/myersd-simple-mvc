@@ -4,14 +4,13 @@ namespace myersd\core;
 class input {
 	protected $c;
 	protected $data = [];
+	protected $capture = ['server','post','get','cookie','env','files','request','put'];
 
 	public function __construct(container &$container) {
 		$this->c = $container;
 
-		$capture = ['server','post','get','cookie','env','files','request','put'];
-
-		foreach ($capture as $c) {
-			$this->data[$c] = $container->app->$c;
+		foreach ($this->capture as $var) {
+			$this->data[$var] = $container->app->$var();
 		}
 
 		/* is this a ajax request? */
@@ -31,14 +30,12 @@ class input {
 		if so and the request is Get than make it empty since it's the "default"
 		this makes our methods follow the following fooAction (Get), fooPostAction (Post), fooPutAction (Put), fooDeleteAction (delete), etc...
 		*/
-		
-		$this->data['method'] = ($container->app->restful) ? $this->data['method'] = ($this->data['raw_method'] == 'Get') ? '' : $this->data['raw_method'] : '';
+		$this->data['method'] = ($container->app->restful()) ? $this->data['method'] = ($this->data['raw_method'] == 'Get') ? '' : $this->data['raw_method'] : '';
 
 		/* PHP doesn't handle PUT very well so we need to capture that manually */
 		if ($this->data['raw_method'] == 'Put') {
 			parse_str(file_get_contents('php://input'),$this->data['put']);
 		}
-		
 	}
 
 	public function prep_uri($uri=NULL) {
@@ -54,92 +51,39 @@ class input {
 	}
 
 	public function is_ajax() {
-		return ($this->data['is_ajax'] === 'Ajax');
+		return (bool)($this->data['is_ajax'] === 'Ajax');
 	}
 
 	public function is_https() {
-		return $this->data['https'];
+		return (bool)$this->data['https'];
 	}
 
-	public function base_url() {
-		return $this->data['base_url'];
+	public function __call($name,$arguments) {
+		$name = (substr($name,0,4) == 'all_') ? substr($name,4) : $name;
+
+		if (in_array($name,$this->capture)) {
+			return (isset($this->data[$name][$arguments[0]])) ? $this->data[$name][$arguments[0]] : $arguments[1];
+		} else {
+			return isset($this->data[$name]) ? $this->data[$name] : NULL;
+		}
 	}
 
-	/* http method */
-	public function method() {
-		return $this->data['method'];
-	}
+	public function map($fields,&$data) {
+		if (!is_array($fields)) {
+			$fields = explode(',',$fields);
+		}
 
-	public function raw_method() {
-		return $this->data['raw_method'];
-	}
+		foreach ($fields as $field) {
+			$post_field = $from_field = $field;
 
-	public function post($name,$default=NULL) {
-		return $this->internal('post',$name,$default);
-	}
-
-	public function get($name,$default=NULL) {
-		return $this->internal('get',$name,$default);
-	}
-
-	public function server($name,$default=NULL) {
-		return $this->internal('server',$name,$default);
-	}
-
-	public function cookie($name,$default=NULL) {
-		return $this->internal('cookie',$name,$default);
-	}
-
-	public function env($name,$default=NULL) {
-		return $this->internal('env',$name,$default);
-	}
-
-	public function files($name,$default=NULL) {
-		return $this->internal('files',$name,$default);
-	}
-
-	public function request($name,$default=NULL) {
-		return $this->internal('request',$name,$default);
-	}
-
-	public function put($name,$default=NULL) {
-		return $this->internal('put',$name,$default);
-	}
-
-	public function all_post() {
-		return $this->data['post'];
-	}
-	
-	public function all_put() {
-		return $this->data['put'];
-	}
-	
-	public function all_get() {
-		return $this->data['get'];
-	}
-	
-	public function all_server() {
-		return $this->data['server'];
-	}
-	
-	public function all_cookie() {
-		return $this->data['cookie'];
-	}
-	
-	public function all_env() {
-		return $this->data['env'];
-	}
-	
-	public function all_request() {
-		return $this->data['request'];
-	}
-	
-	public function all_files() {
-		return $this->data['files'];
-	}
-
-	protected function internal($key,$name,$default) {
-		return (isset($this->data[$key][$name])) ? $this->data[$key][$name] : $default;
+			if (strpos($field,' as ') !== FALSE) {
+				list($post_field,$from_field) = explode(' as ',$field,2);
+			}
+			
+			$data[$from_field] = $this->post($post_field);
+		}
+		
+		return $this; /* allow chaining */
 	}
 
 } /* end request */

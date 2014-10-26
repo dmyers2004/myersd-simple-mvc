@@ -47,7 +47,7 @@ class app {
 		set_include_path(get_include_path().PATH_SEPARATOR.implode(PATH_SEPARATOR,$add));
 	}
 
-	public function __get($name) {
+	public function __call($name,$arguments) {
 		return isset($this->data[$name]) ? $this->data[$name] : NULL;
 	}
 	
