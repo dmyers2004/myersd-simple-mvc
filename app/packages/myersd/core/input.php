@@ -68,7 +68,7 @@ class input {
 		}
 	}
 
-	public function map($fields,&$data) {
+	public function map($fields,&$data,$method='post') {
 		if (!is_array($fields)) {
 			$fields = explode(',',$fields);
 		}
@@ -80,7 +80,14 @@ class input {
 				list($post_field,$from_field) = explode(' as ',$field,2);
 			}
 			
-			$data[$from_field] = $this->post($post_field);
+			$default = NULL;
+			
+			if (strpos($from_field,' default ') !== FALSE) {
+				list($from_field,$default) = explode(' default ',$from_field,2);
+			}
+			
+			/* passed by reference so modified directly */
+			$data[$from_field] = $this->$method($post_field,$default);
 		}
 		
 		return $this; /* allow chaining */

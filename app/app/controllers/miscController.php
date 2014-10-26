@@ -1,6 +1,18 @@
 <?php 
 
-class miscController {
+use \myersd\core\controller;
+
+class miscController extends controller {
+
+	public function input_mapPostAction() {
+		$data = [];
+		
+		$fields = 'name as foo,bar as chow default 123,test';
+		
+		$this->c->input->map($fields,$data);
+		
+		var_dump($data);
+	}
 
 	public function indexAction() {
 		echo 'misc index action';
