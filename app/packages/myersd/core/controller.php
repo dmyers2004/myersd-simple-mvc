@@ -2,8 +2,8 @@
 namespace myersd\core;
 
 class controller {
-	protected $data = [];
 	protected $c;
+	protected $data = [];
 	
 	public function __construct(container &$container) {
 		$this->c = $container;

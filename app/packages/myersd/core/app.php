@@ -2,16 +2,9 @@
 namespace myersd\core;
 
 class app {
-	protected static $data = [];
-	protected static $init = FALSE;
+	protected $data = [];
 	
 	public function __construct(container &$container) {
-		if (!self::$init) {
-			$this->init($container);
-		}
-	} /* end __construct() */
-
-	protected function init(container &$container) {
 		/* You can send in 1 or more of these for mocking */
 		$defaults = [
 			'environment_variable'=>'ENV',
@@ -32,32 +25,30 @@ class app {
 		];
 		
 		/* merge sent in configuration over the defaults */
-		self::$data = array_replace_recursive($defaults,$container->configuration);
+		$this->data = array_replace_recursive($defaults,$container->configuration);
 
 		/* setup timezone so PHP doesn't complain */
-		self::$data['timezone'] = (self::$data['timezone']) ? self::$data['timezone'] : ((!ini_get('date.timezone') ? 'UTC' : ini_get('date.timezone')));
+		$this->data['timezone'] = ($this->data['timezone']) ? $this->data['timezone'] : ((!ini_get('date.timezone') ? 'UTC' : ini_get('date.timezone')));
 		
 		/* set our timezone */
-		date_default_timezone_set(self::$data['timezone']);
+		date_default_timezone_set($this->data['timezone']);
 
 		/* setup our error display */
-		error_reporting(self::$data['error_reporting']);
-		ini_set('display_errors', self::$data['display_errors']);
+		error_reporting($this->data['error_reporting']);
+		ini_set('display_errors', $this->data['display_errors']);
 
 		/* add our modules to the search path */
 		$add = [];
 		
-		foreach (self::$data['packages'] as $name=>$path) {
-			$add[] = realpath(self::$data['root'].'/'.$path.'/'.$name);
+		foreach ($this->data['packages'] as $name=>$path) {
+			$add[] = realpath($this->data['root'].'/'.$path.'/'.$name);
 		}
 		
 		set_include_path(get_include_path().PATH_SEPARATOR.implode(PATH_SEPARATOR,$add));
-		
-		self::$init = TRUE;
 	}
 
 	public function __get($name) {
-		return isset(self::$data[$name]) ? self::$data[$name] : NULL;
+		return isset($this->data[$name]) ? $this->data[$name] : NULL;
 	}
 	
 } /* end bootstrap */

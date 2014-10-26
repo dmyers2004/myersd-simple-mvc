@@ -10,20 +10,29 @@ foreach ($config['packages'] as $name=>$path) {
 	$loader->add($name, realpath(__DIR__.'/../'.$path));
 }
 
+/*
+$whoops = new \Whoops\Run;
+$whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+$whoops->register();
+*/
+
 $c = new \myersd\core\container();
 
-$c->configuration = function($c) use ($config) { return $config; };
-$c->app = function($c) { return new \myersd\core\app($c); };
-$c->router = function($c) { return new \myersd\core\router($c); };
-$c->event = function($c) { return new \myersd\core\event($c); };
+$c->configuration = $config;
+$c->app = $c->shared(function($c) { return new \myersd\core\app($c); });
 
-$c->input = function($c) { return new \myersd\core\input($c); };
-$c->output = function($c) { return new \myersd\core\output($c); };
+$c->router = $c->shared(function($c) { return new \myersd\core\router($c); });
+$c->event = $c->shared(function($c) { return new \myersd\core\event($c); });
 
-$c->config = function($c) { return new \myersd\libraries\config($c); };
-$c->log = function($c) { return new \myersd\libraries\log($c); };
-$c->session = function($c) { return new \myersd\libraries\session($c); };
-$c->view = function($c) { return new \myersd\libraries\view($c); };
+$c->input = $c->shared(function($c) { return new \myersd\core\input($c); });
+$c->output = $c->shared(function($c) { return new \myersd\core\output($c); });
+
+$c->config = $c->shared(function($c) { return new \myersd\libraries\config($c); });
+$c->log = $c->shared(function($c) { return new \myersd\libraries\log($c); });
+$c->session = $c->shared(function($c) { return new \myersd\libraries\session($c); });
+$c->view = $c->shared(function($c) { return new \myersd\libraries\view($c); });
+
+$c->validate = $c->shared(function($c) { return new \myersd\libraries\validate($c); });
 
 /* route and respond */
 $c->router->route()->output->display();

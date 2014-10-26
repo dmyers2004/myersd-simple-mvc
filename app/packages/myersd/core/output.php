@@ -2,48 +2,40 @@
 namespace myersd\core;
 
 class output {
-	protected static $final_output = '';
-	protected static $headers = [];
-	protected static $mimes = [];
-	protected static $mime_type = 'text/html';
-	protected static $c;
-	protected static $init = FALSE;
+	protected $c;
+	protected $final_output = '';
+	protected $headers = [];
+	protected $mimes = [];
+	protected $mime_type = 'text/html';
 
 	public function __construct(container &$container) {
-		self::$c = &$container;
+		$this->c = &$container;
 
-		if (!self::$init) {
-			$this->init($container);
-		}
-	}
-
-	protected function init(container &$container) {
-		self::$mimes = $container->config->item('mimes','mimes');
-		self::$init = TRUE;
+		$this->mimes = $container->config->item('mimes','mimes');
 	}
 
 	public function get_output() {
-		return self::$final_output;
+		return $this->final_output;
 	}
 
 	public function set_output($output) {
-		self::$final_output = $output;
+		$this->final_output = $output;
 
 		return $this;
 	}
 
 	public function append_output($output) {
-		if (self::$final_output == '') {
-			self::$final_output = $output;
+		if ($this->final_output == '') {
+			$this->final_output = $output;
 		} else {
-			self::$final_output .= $output;
+			$this->final_output .= $output;
 		}
 
 		return $this;
 	}
 
 	public function set_header($header, $replace = TRUE) {
-		self::$headers[] = [$header, $replace];
+		$this->headers[] = [$header, $replace];
 
 		return $this;
 	}
@@ -53,8 +45,8 @@ class output {
 			$extension = ltrim($mime_type, '.');
 
 			// Is this extension supported?
-			if (isset(self::$mime_types[$extension])) {
-				$mime_type =& self::$mime_types[$extension];
+			if (isset($this->mime_types[$extension])) {
+				$mime_type =& $this->mime_types[$extension];
 
 				if (is_array($mime_type)) {
 					$mime_type = current($mime_type);
@@ -64,7 +56,7 @@ class output {
 
 		$header = 'Content-Type: '.$mime_type;
 
-		self::$headers[] = array($header, TRUE);
+		$this->headers[] = array($header, TRUE);
 
 		return $this;
 	}
@@ -76,20 +68,20 @@ class output {
 	}
 
 	public function get_content_type() {
-		for ($i = 0, $c = count(self::$headers); $i < $c; $i++) {
-			if (sscanf(self::$headers[$i][0], 'Content-Type: %[^;]', $content_type) === 1) {
+		for ($i = 0, $c = count($this->headers); $i < $c; $i++) {
+			if (sscanf($this->headers[$i][0], 'Content-Type: %[^;]', $content_type) === 1) {
 				return $content_type;
 			}
 		}
 
-		return self::$mime_type;
+		return $this->mime_type;
 	}
 
 	public function get_header($header) {
 		// Combine headers already sent with our batched headers
 		$headers = array_merge(
 			// We only need [x][0] from our multi-dimensional array
-			array_map('array_shift', self::$headers),
+			array_map('array_shift', $this->headers),
 			headers_list()
 		);
 
@@ -110,17 +102,17 @@ class output {
 	public function display($output=NULL) {
 		// Set the output data
 		if (!$output) {
-			$output = self::$final_output;
+			$output = $this->final_output;
 		}
 
-		if (count(self::$headers) > 0) {
-			foreach (self::$headers as $header) {
+		if (count($this->headers) > 0) {
+			foreach ($this->headers as $header) {
 				@header($header[0], $header[1]);
 			}
 		}
 
-		if (method_exists(self::$c->router->controller_obj(),'_output')) {
-			self::$c->router->controller_obj()->_output($output);
+		if (method_exists($this->c->router->controller_obj(),'_output')) {
+			$this->c->router->controller_obj()->_output($output);
 		} else {
 			echo $output;
 		}

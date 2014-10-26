@@ -6,11 +6,11 @@ use myersd\core\container;
 
 class View_Not_Found_Exception extends \Exception { }
 
-class view extends container {
-	protected static $c = [];
+class view {
+	protected $c;
 
 	public function __construct(container &$container) {
-		self::$c = $container;
+		$this->c = $container;
 	}
 
 	public function partial($_mvc_view_name=NULL,$_mvc_view_data=[]) {
@@ -39,7 +39,7 @@ class view extends container {
 		}
 		
 		if ($output) {
-			self::$c->output->set_output($output);
+			$this->c->output->set_output($output);
 		}
 		
 		return $output;

@@ -59,4 +59,4 @@ class mainController extends controller {
 		var_dump($this->app->app->root());
 	}
 
-}
+} /* end mainController */

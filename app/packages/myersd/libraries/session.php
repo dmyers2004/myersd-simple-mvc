@@ -3,10 +3,13 @@ namespace myersd\libraries;
 
 use myersd\core\container;
 
-class session extends container {
+class session {
+	protected $c;
 	protected $flash_key = 'FLASHKEY';
 
-	public function init() {
+	public function __construct(container &$container) {
+		$this->c = $container;
+
 		session_set_cookie_params(
 			$this->container->config->item('session','sess_cookie_lifetime'),
 			$this->container->config->item('session','cookie_path'),
@@ -67,15 +70,11 @@ class session extends container {
 	}
 
 	public function get_flashdata($key) {
-		$flash_key = $this->flash_key.':old:'.$key;
-
-		return $this->get($name,$flash_key);
+		return $this->get($name,$this->flash_key.':old:'.$key);
 	}
 
 	public function set_flashdata($key,$value) {
-		$flash_key = $this->flash_key.':new:'.$key;
-
-		return $this->set($flash_key,$value);
+		return $this->set($this->flash_key.':new:'.$key,$value);
 	}
 
 	public function keep_flashdata($key=NULL) {
@@ -112,4 +111,4 @@ class session extends container {
 		return $this;
 	}
 
-} /* end session */
+} /* end session class */

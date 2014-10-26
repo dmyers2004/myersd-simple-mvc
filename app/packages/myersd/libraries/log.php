@@ -4,13 +4,13 @@ namespace myersd\libraries;
 use myersd\core\container;
 
 class log {
-	protected static $log_level = 0;
-	protected static $log_file;
-	protected static $log_format;
-	protected static $log_generic;
-	protected static $c;
+	protected $c;
+	protected $log_level = 0;
+	protected $log_file;
+	protected $log_format;
+	protected $log_generic;
 
-	protected static $psr_levels = [
+	protected static $psr_levels = [ /* also the method names */
 		'EMERGENCY' => 1,
 		'ALERT'     => 2,
 		'CRITICAL'  => 4,
@@ -32,18 +32,18 @@ class log {
 	];
 
 	public function __construct(container &$container) {
-		self::$c = $container;
+		$this->c = $container;
 
-		self::$log_level = self::$c->config->item('log','log_level');
-		self::$log_file = self::$c->app->root.self::$c->config->item('log','log_file');
-		self::$log_format = self::$c->config->item('log','log_format','Y-m-d H:i:s');
-		self::$log_generic = self::$c->config->item('log','log_generic','GENERAL');
+		$this->log_level = $this->c->config->item('log','log_level');
+		$this->log_file = $this->c->app->root.$this->c->config->item('log','log_file');
+		$this->log_format = $this->c->config->item('log','log_format','Y-m-d H:i:s');
+		$this->log_generic = $this->c->config->item('log','log_generic','GENERAL');
 	}
 
 	public function __call($level,$value) {
 		$level = strtoupper($level);
 
-		if (array_key_exists($level, self::$psr_levels)) {
+		if (array_key_exists($level, $this->psr_levels)) {
 			return $this->_write($level,$value[0]);
 		}
 
@@ -51,16 +51,16 @@ class log {
 	} /* end __call */
 
 	public function write($msg, $level) {
-		$level = ($level) ? $level : self::$log_generic;
+		$level = ($level) ? $level : $this->log_generic;
 
-		return file_put_contents(self::$log_file,date(self::$log_format).' '.$level.' '.$msg.chr(10),FILE_APPEND);
+		return file_put_contents($this->log_file,date($this->log_format).' '.$level.' '.$msg.chr(10),FILE_APPEND);
 	} /* end write */
 
 	protected function _write($level, $msg='') {
-		if (self::$log_level > 0) {
+		if ($this->log_level > 0) {
 			$level = strtoupper($level);
 
-			if ((!array_key_exists($level,self::$psr_levels)) || (!(self::$log_level & self::$psr_levels[$level]))) {
+			if ((!array_key_exists($level,$this->psr_levels)) || (!($this->log_level & $this->psr_levels[$level]))) {
 				return FALSE;
 			}
 			
@@ -68,4 +68,4 @@ class log {
 		}
 	} /* end _write */
 
-} /* end log */
+} /* end log class */

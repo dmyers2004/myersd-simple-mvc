@@ -2,13 +2,13 @@
 namespace myersd\core;
 
 class event {
-	protected static $events = [];
+	protected $events = [];
 
 	public function register($name, $callback) {
 		$key = strtolower((is_array($callback)) ? get_class($callback[0]).'/'.$callback[1] : $callback);
 		$name = strtolower($name);
 
-		self::$events[$name][$key] = $callback;
+		$this->events[$name][$key] = $callback;
 
 		return $this;
 	}
@@ -17,7 +17,7 @@ class event {
 		$name = strtolower($name);
 
 		if ($this->has_event($name)) {
-			foreach (self::$events[$name] as $listener) {
+			foreach ($this->events[$name] as $listener) {
 				if (is_callable($listener)) {
 					$responds = call_user_func($listener, $data);
 
@@ -35,13 +35,13 @@ class event {
 		$key = strtolower((is_array($callback)) ? get_class($callback[0]).'/'.$callback[1] : $callback);
 		$name = strtolower($name);
 
-		unset(self::$events[$name][$key]);
+		unset($this->events[$name][$key]);
 
 		return $this;
 	}
 
 	public function has_event($name) {
-		return (isset(self::$events[$name]) && count(self::$events[$name]) > 0);
+		return (isset($this->events[$name]) && count($this->events[$name]) > 0);
 	}
 
 } /* end of events */
