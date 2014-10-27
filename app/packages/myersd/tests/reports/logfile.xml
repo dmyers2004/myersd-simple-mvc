@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="appTest" file="/Volumes/htdocs/mvc/app/packages/myersd/tests/tests/app.php" tests="1" assertions="0" failures="0" errors="0" time="0.000548">
-    <testcase name="test_app" class="appTest" file="/Volumes/htdocs/mvc/app/packages/myersd/tests/tests/app.php" line="8" assertions="0" time="0.000548"/>
+  <testsuite name="appTest" file="/Volumes/htdocs/mvc/app/packages/myersd/tests/tests/app.php" tests="1" assertions="0" failures="0" errors="1" time="0.000605">
+    <testcase name="test_app" class="appTest" file="/Volumes/htdocs/mvc/app/packages/myersd/tests/tests/app.php" line="8" assertions="0" time="0.000605">
+      <error type="PHPUnit_Framework_ExceptionWrapper">appTest::test_app
+Exception: Serialization of 'Closure' is not allowed
+
+</error>
+    </testcase>
   </testsuite>
 </testsuites>

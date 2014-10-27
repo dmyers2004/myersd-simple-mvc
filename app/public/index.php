@@ -1,45 +1,28 @@
 <?php
 /* load composer autoloader */
-$loader = require '../vendor/autoload.php';
+$loader = require __DIR__.'/../vendor/autoload.php';
 
-/* this is the only include to load the $config variable based on the environment */
-include '../app/config/'.getenv('ENV').'/bootstrap.php';
+/* define some LOW level stuff */
+define('ENV',$_SERVER['ENV']); /* this could be set VIA htaccess for example */
+define('ROOT',realpath(__DIR__.'/..')); /* where is the root of this entire application? */
 
-/* setup our composer packages and include path for controllers, config, views */
-$config['include_path'] = '';
-
-foreach ($config['packages'] as $name=>$path) {
-	$config['include_path'] .= PATH_SEPARATOR.realpath($config['root'].'/'.$path.'/'.$name);
-	$loader->add($name, realpath(__DIR__.'/../'.$path));
-}
-
-$defaults = [
-	'environment_variable'=>'ENV',
-	'default_controller'=>'main',
-	'default_method'=>'index',
-	'ajax_aware'=>FALSE,
-	'error_reporting'=>E_ALL ^ E_NOTICE ^ E_DEPRECATED ^ E_STRICT,
-	'display_errors'=>0,
-	'timezone'=>'UTC',
-	'request_methods'=>['get'=>'','post'=>'Post','put'=>'Put','delete'=>'Delete'],
-	/* you can send in these in if you need to unittest */
-	'server'=>$_SERVER,
-	'post'=>$_POST,
-	'get'=>$_GET,
-	'cookie'=>$_COOKIE,
-	'env'=>$_ENV,
-	'files'=>$_FILES,
-	'request'=>$_REQUEST,
-	'session'=>@$_SESSION,
-	'put'=>[],
+$packages = [
+	''=>'app/',
+	'myersd\\'=>'packages/myersd/'
 ];
 
-/* merge sent in configuration over the defaults */
-$config = array_replace_recursive($defaults,$config);
+/* setup our composer packages and include path for controllers, config, views */
+foreach ($packages as $name=>$path) {
+	/* composer PSR4 autoload */
+	$loader->addpsr4($name, realpath(__DIR__.'/../'.$path));
+	
+	/* controller, view, config autoload */
+	set_include_path(get_include_path().PATH_SEPARATOR.realpath(ROOT.'/'.$path.'/'.$name));
+}
 
 $c = new \myersd\core\container();
 
-$c->configuration = $config;
+$c->config = $c->shared(function($c) { return new \myersd\core\config($c); });
 $c->app = $c->shared(function($c) { return new \myersd\core\app($c); });
 
 $c->router = $c->shared(function($c) { return new \myersd\core\router($c); });
@@ -47,7 +30,6 @@ $c->event = $c->shared(function($c) { return new \myersd\core\event($c); });
 
 $c->input = $c->shared(function($c) { return new \myersd\core\input($c); });
 $c->output = $c->shared(function($c) { return new \myersd\core\output($c); });
-$c->config = $c->shared(function($c) { return new \myersd\core\config($c); });
 
 $c->log = $c->shared(function($c) { return new \myersd\libraries\log($c); });
 $c->session = $c->shared(function($c) { return new \myersd\libraries\session($c); });

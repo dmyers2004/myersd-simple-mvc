@@ -10,9 +10,9 @@
     "event": "test",
     "suite": "appTest",
     "test": "appTest::test_app",
-    "status": "pass",
-    "time": 0.00054788589477539,
+    "status": "error",
+    "time": 0.00060510635375977,
     "trace": [],
-    "message": "",
+    "message": "Serialization of 'Closure' is not allowed",
     "output": ""
 }

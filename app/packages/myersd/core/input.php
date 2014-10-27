@@ -10,7 +10,7 @@ class input {
 		$this->c = $container;
 
 		foreach ($this->capture as $var) {
-			$this->data[$var] = $container->configuration[$var];
+			$this->data[$var] = $this->c->config->item('bootstrap',$var);
 		}
 
 		/* is this a ajax request? */
@@ -25,8 +25,8 @@ class input {
 		/* what type of request for REST or other */
 		$this->data['raw_method'] = strtolower($this->data['server']['REQUEST_METHOD']);
 
-		$this->data['method'] = $this->c->app->request_methods()[$this->data['raw_method']];
-	
+		$this->data['method'] = $this->c->config->item('bootstrap','request_methods')[$this->data['raw_method']];
+			
 		/* PHP doesn't handle PUT very well so we need to capture that manually */
 		if ($this->data['raw_method'] == 'put') {
 			parse_str(file_get_contents('php://input'),$this->data['put']);
@@ -93,6 +93,10 @@ class input {
 
 	public function is_ajax() {
 		return (bool)($this->data['is_ajax'] === 'Ajax');
+	}
+	
+	public function ajax() {
+		return $this->data['is_ajax'];
 	}
 
 	public function is_https() {

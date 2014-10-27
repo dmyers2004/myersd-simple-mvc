@@ -1,7 +1,7 @@
 <phpunit
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.1/phpunit.xsd"
-	bootstrap=""
+	bootstrap="../../../public/index.php"
 	colors="true"
 	convertErrorsToExceptions="true"
 	convertNoticesToExceptions="true"
@@ -13,6 +13,7 @@
 	<!-- http://phpunit.de/manual/4.1/en/appendixes.configuration.html -->
   <php>  	
 		<server name="ENV" value="unittest"/>
+		<server name="REQUEST_METHOD" value="Get"/>
 	  <post name="foo" value="bar"/>
 	  <get name="foo" value="bar"/>
 	  <cookie name="foo" value="bar"/>
