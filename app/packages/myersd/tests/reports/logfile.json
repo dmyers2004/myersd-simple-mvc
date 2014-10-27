@@ -1,0 +1,18 @@
+{
+    "event": "suiteStart",
+    "suite": "appTest",
+    "tests": 1
+}{
+    "event": "testStart",
+    "suite": "appTest",
+    "test": "appTest::test_app"
+}{
+    "event": "test",
+    "suite": "appTest",
+    "test": "appTest::test_app",
+    "status": "pass",
+    "time": 0.00054788589477539,
+    "trace": [],
+    "message": "",
+    "output": ""
+}

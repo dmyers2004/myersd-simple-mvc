@@ -1,0 +1,29 @@
+<phpunit
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.1/phpunit.xsd"
+	bootstrap=""
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	processIsolation="false"
+	stopOnFailure="false"
+	syntaxCheck="false"
+	verbose="true">
+	<!-- http://phpunit.de/manual/4.1/en/appendixes.configuration.html -->
+  <php>  	
+		<server name="ENV" value="unittest"/>
+	  <post name="foo" value="bar"/>
+	  <get name="foo" value="bar"/>
+	  <cookie name="foo" value="bar"/>
+	  <files name="foo" value="bar"/>
+	  <request name="foo" value="bar"/>
+	</php>
+	<logging>
+		<log type="json" target="./reports/logfile.json"/>
+		<log type="tap" target="./reports/logfile.tap"/>
+		<log type="junit" target="./reports/logfile.xml" logIncompleteSkipped="false"/>
+		<log type="testdox-html" target="./reports/testdox.html"/>
+		<log type="testdox-text" target="./reports/testdox.txt"/>
+	</logging>
+</phpunit>

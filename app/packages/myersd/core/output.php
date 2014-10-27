@@ -11,7 +11,7 @@ class output {
 	public function __construct(container &$container) {
 		$this->c = &$container;
 
-		$this->mimes = $container->config->item('mimes','mimes');
+		$this->mimes = $this->c->config->item('mimes','mimes');
 	}
 
 	public function get_output() {

@@ -10,7 +10,7 @@ class input {
 		$this->c = $container;
 
 		foreach ($this->capture as $var) {
-			$this->data[$var] = $container->app->$var();
+			$this->data[$var] = $container->configuration[$var];
 		}
 
 		/* is this a ajax request? */
@@ -23,17 +23,12 @@ class input {
 		$this->data['base_url'] = trim('http'.(($this->data['https']) ? 's' : '').'://'.$this->data['server']['HTTP_HOST'].dirname($this->data['server']['SCRIPT_NAME']),'/');
 
 		/* what type of request for REST or other */
-		$this->data['raw_method'] = ucfirst(strtolower($this->data['server']['REQUEST_METHOD']));
+		$this->data['raw_method'] = strtolower($this->data['server']['REQUEST_METHOD']);
 
-		/*
-		is this a restful app?
-		if so and the request is Get than make it empty since it's the "default"
-		this makes our methods follow the following fooAction (Get), fooPostAction (Post), fooPutAction (Put), fooDeleteAction (delete), etc...
-		*/
-		$this->data['method'] = ($container->app->restful()) ? $this->data['method'] = ($this->data['raw_method'] == 'Get') ? '' : $this->data['raw_method'] : '';
-
+		$this->data['method'] = $this->c->app->request_methods()[$this->data['raw_method']];
+	
 		/* PHP doesn't handle PUT very well so we need to capture that manually */
-		if ($this->data['raw_method'] == 'Put') {
+		if ($this->data['raw_method'] == 'put') {
 			parse_str(file_get_contents('php://input'),$this->data['put']);
 		}
 	}
@@ -45,9 +40,55 @@ class input {
 		$this->data['uri'] = filter_var(trim($uri,'/'),FILTER_SANITIZE_URL);
 
 		/* ok let's split these up for futher processing */
-		$this->data['segments'] = explode('/',$this->data['uri']);
+		return $this->data['segments'] = explode('/',$this->data['uri']);
+	}
 
-		return $this->data['segments'];
+	public function base_url() {
+		return $this->data['base_url'];
+	}
+
+	public function raw_method() {
+		return $this->data['raw_method'];
+	}
+
+	public function method() {
+		return $this->data['method'];
+	}
+
+	public function server($key=NULL,$default=NULL) {
+		return $this->_internal('server',$key,$default);
+	}
+
+	public function post($key=NULL,$default=NULL) {
+		return $this->_internal('post',$key,$default);
+	}
+
+	public function get($key=NULL,$default=NULL) {
+		return $this->_internal('get',$key,$default);
+	}
+
+	public function request($key=NULL,$default=NULL) {
+		return $this->_internal('request',$key,$default);
+	}
+
+	public function put($key=NULL,$default=NULL) {
+		return $this->_internal('put',$key,$default);
+	}
+
+	public function cookie($key=NULL,$default=NULL) {
+		return $this->_internal('cookie',$key,$default);
+	}
+
+	public function env($key=NULL,$default=NULL) {
+		return $this->_internal('env',$key,$default);
+	}
+
+	public function files($key=NULL,$default=NULL) {
+		return $this->_internal('files',$key,$default);
+	}
+
+	protected function _internal($key,$idx,$default) {
+		return ($idx == NULL) ? $this->data[$key] : (isset($this->data[$key][$idx])) ? $this->data[$key][$idx] : $default;
 	}
 
 	public function is_ajax() {
@@ -56,16 +97,6 @@ class input {
 
 	public function is_https() {
 		return (bool)$this->data['https'];
-	}
-
-	public function __call($name,$arguments) {
-		$name = (substr($name,0,4) == 'all_') ? substr($name,4) : $name;
-
-		if (in_array($name,$this->capture)) {
-			return (isset($this->data[$name][$arguments[0]])) ? $this->data[$name][$arguments[0]] : $arguments[1];
-		} else {
-			return isset($this->data[$name]) ? $this->data[$name] : NULL;
-		}
 	}
 
 	public function map($fields,&$data,$method='post') {

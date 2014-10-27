@@ -19,15 +19,15 @@ class mainController extends controller {
 	}
 	
 	public function configAction() {
-		$c = c()->config->item('mongo');
+		$c = $this->c->config->item('mongo');
 		
 		echo '<pre>';
 		var_dump($c);
 		
-		$d = c()->config->item('mongo','dsn');
+		$d = $this->c->config->item('mongo','dsn');
 		var_dump($d);
 
-		$d = c()->config->item('application');
+		$d = $this->c->config->item('application');
 		var_dump($d);
 	
 	}

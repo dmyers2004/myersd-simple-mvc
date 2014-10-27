@@ -8,7 +8,7 @@ class router {
 	protected $c;
 	protected $data = [];
 	protected $controller;
-	
+
 	public function __construct(container &$container) {
 		$this->c = $container;
 	}
@@ -85,8 +85,28 @@ class router {
 		return $this->controller;
 	}
 
-	public function __get($name) {
-		return isset($this->data[$name]) ? $this->data[$name] : NULL;
+	public function classname() {
+		return $this->data['classname'];
 	}
-	
+
+	public function parameters() {
+		return $this->data['parameters'];
+	}
+
+	public function controller() {
+		return $this->data['controller'];
+	}
+
+	public function method() {
+		return $this->data['method'];
+	}
+
+	public function directory() {
+		return $this->data['directory'];
+	}
+
+	public function controller_path() {
+		return $this->data['controller_path'];
+	}
+
 } /* end router */

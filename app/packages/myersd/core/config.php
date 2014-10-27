@@ -1,5 +1,5 @@
 <?php
-namespace myersd\libraries;
+namespace myersd\core;
 
 use myersd\core\container;
 
