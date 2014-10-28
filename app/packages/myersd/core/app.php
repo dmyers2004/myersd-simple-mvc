@@ -1,14 +1,11 @@
 <?php
 namespace myersd\core;
 
-class app {
-	protected $c;
+class app extends \myersd\core\base {
 	protected $controller;
 
 	/* setup a few basic items */
-	public function __construct(container &$container) {
-		$this->c = $container;
-
+	public function init() {
 		/* set our timezone */
 		date_default_timezone_set($this->c->config->item('bootstrap','timezone'));
 

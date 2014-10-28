@@ -1,8 +1,6 @@
 <?php
 
-use \myersd\core\controller;
-
-class mainController extends controller {
+class mainController extends \myersd\core\controller {
 
 	public function indexAction() {
 		echo 'mainController indexAction';
@@ -15,7 +13,7 @@ class mainController extends controller {
 	public function viewAction() {
 		$this->data['name'] = 'Johnny Appleseed';
 
-		$this->c->view->render('index',$this->data);
+		$this->c->view->load('index',$this->data);
 	}
 	
 	public function configAction() {

@@ -5,13 +5,8 @@ use myersd\core\container;
 
 class Config_Variable_Not_Found_Exception extends \Exception { }
 
-class config {
-	protected $c;
-	protected $data = [];
-
-	public function __construct(container &$container) {
-		$this->c = $container;
-
+class config extends \myersd\core\base {
+	public function init() {
 		$defaults = [
 			'environment'=>ENV,
 			'default_controller'=>'main',

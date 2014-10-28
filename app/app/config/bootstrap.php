@@ -3,7 +3,7 @@
 if (ENV == 'dev' || ENV == 'unittest' || ENV == 'cli') {
 	$config = [
 		'timezone'=>'America/New_York',
-		'error_reporting'=>E_ALL,
+		'error_reporting'=>E_ALL & ~E_NOTICE,
 		'display_errors'=>1,
 	];
 }

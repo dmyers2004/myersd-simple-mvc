@@ -8,20 +8,38 @@ class View_Not_Found_Exception extends \Exception { }
 
 class view {
 	protected $c;
+	protected $data = [];
 
 	public function __construct(container &$container) {
 		$this->c = $container;
 	}
 
-	public function partial($_mvc_view_name=NULL,$_mvc_view_data=[]) {
-		return $this->render($_mvc_view_name,$_mvc_view_data,FALSE);
+	public function data($name=NULL,$value='#FOOBAR#') {
+		$return = $this;
+
+		if ($name === NULL) {
+			$return = $this->data();
+		} elseif ($value == '#FOOBAR#') {
+			$return = $this->data($name);
+		} else {
+			$this->data[$name] = $value;
+		}
+
+		return $return;
 	}
 
-	public function render($_mvc_view_name=NULL,$_mvc_view_data=[],$output=TRUE) {
-		$output = '';
+	public function load($_mvc_view_name=NULL,$_mvc_view_data=[],$_mvc_set_output=TRUE) {
+		$_mvc_output = '';
+		$_mvc_var_name = NULL;
+
+		if (is_string($_mvc_set_output)) {
+			$_mvc_var_name = $_mvc_set_output;
+			$_mvc_set_output = FALSE;
+		}
+
+		$_mvc_view_data = array_merge_recursive($this->data,$_mvc_view_data);
 
 		if ($_mvc_view_file = stream_resolve_include_path('views/'.$_mvc_view_name.'.php')) {
-
 			/* extract out view data and make it in scope */
 			extract($_mvc_view_data);
 
@@ -32,17 +50,21 @@ class view {
 			include $_mvc_view_file;
 
 			/* capture cache and return */
-			$output = ob_get_clean();
+			$_mvc_output = ob_get_clean();
 		} else {
 			/* simply error and exit */
 			throw new View_Not_Found_Exception('View File "views/'.$_mvc_view_name.'.php" Not Found',810);
 		}
-		
-		if ($output) {
-			$this->c->output->set_output($output);
+
+		if ($_mvc_var_name != NULL) {
+			$this->data[$_mvc_var_name] = $_mvc_output;
 		}
-		
-		return $output;
+
+		if ($_mvc_set_output) {
+			$this->c->output->set_output($_mvc_output);
+		}
+
+		return $_mvc_output;
 	}
 
 } /* end view class */
