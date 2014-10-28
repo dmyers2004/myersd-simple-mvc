@@ -15,7 +15,7 @@ class router {
 
 	public function route($uri=NULL) {
 		/* have the input object prep/save the uri */
-		$segs = $this->c->input->prep_uri($uri);
+		$segs = $this->c->input->segments($uri);
 
 		$segs = ($segs[0] == '') ? [$this->c->config->item('bootstrap','default_controller'),$this->c->config->item('bootstrap','default_method')] : $segs;
 
@@ -55,7 +55,7 @@ class router {
 
 		/* was a class loaded */
 		if (!class_exists($this->data['classname'])) {
-			throw new Controller_Not_Found_Exception('Controller File '.$this->data['classname'].'.php Not Found',800);
+			throw new Controller_Not_Found_Exception('Controller File "'.$this->data['classname'].'.php" Not Found',803);
 		}
 
 		/* try to instantiate the controller */
@@ -75,14 +75,14 @@ class router {
 
 		/* does that method even exist? */
 		if (method_exists($controller, $this->data['called'])) {
-			/*attach this to the application instance */
+			/* attach this to the application instance */
 			$this->c->app->controller($controller);
 		
 			/* call the method and echo what's returned */
 			echo call_user_func_array([$controller,$this->data['called']],$this->data['parameters']);
 		} else {
 			/* no throw a error */
-			throw new Method_Not_Found_Exception('Method '.$this->data['called'].' Not Found',801);
+			throw new Method_Not_Found_Exception('Method "'.$this->data['called'].'" Not Found',804);
 		}
 
 		return $this->c;

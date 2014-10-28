@@ -28,7 +28,7 @@ class security {
 			} else {
 				$error_msg = (!empty($this->config['forge_error'])) ? $this->config['forge_error'] : $this->default_error_msg_html;
 
-				throw new Security_Exception($error_msg.'<!--'.$this->c->validate->error_string(' ','<br>').'-->',839);
+				throw new Security_Exception('Error Message: '.$error_msg.' Error String: '.$this->c->validate->error_string(' ','<br>'),805);
 			}
 		}
 
@@ -47,7 +47,7 @@ class security {
 		}
 
 		/* if they want to see a hard error - here you go! */
-		throw new Security_Exception('Access Denied: Please try to login again.',840);
+		throw new Security_Exception('Access Denied: Please try to login again.',806);
 
 		/*
 		you should never, never get to this

@@ -35,7 +35,7 @@ class view {
 			$output = ob_get_clean();
 		} else {
 			/* simply error and exit */
-			throw new View_Not_Found_Exception('View File views/'.$_mvc_view_name.'.php Not Found',802);
+			throw new View_Not_Found_Exception('View File "views/'.$_mvc_view_name.'.php" Not Found',810);
 		}
 		
 		if ($output) {

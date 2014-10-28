@@ -9,27 +9,25 @@ class app {
 	public function __construct(container &$container) {
 		$this->c = $container;
 
-		/* setup timezone so PHP doesn't complain */
-		$tz = $this->c->config->item('bootstrap','timezone') ? $this->c->config->item('bootstrap','timezone') : (!ini_get('date.timezone')) ? 'UTC' : ini_get('date.timezone');
-
 		/* set our timezone */
-		date_default_timezone_set($tz);
-
-		$this->c->config->set('bootstrap','timezone',$tz);
+		date_default_timezone_set($this->c->config->item('bootstrap','timezone'));
 
 		/* setup our error display */
 		error_reporting($this->c->config->item('bootstrap','error_reporting'));
 		ini_set('display_errors',$this->c->config->item('bootstrap','display_errors'));
 	}
 	
+	/* get & set the controller object */
 	public function controller(&$obj=NULL) {
+		$return = $this;
+		
 		if ($obj == NULL) {
-			return $this->controller;
-		}
+			$return = $this->controller;
+		} else {
+			$this->controller = $obj;
+		}	
 		
-		$this->controller = $obj;
-		
-		return $this;
+		return $return;
 	}
 
 } /* end bootstrap */

@@ -20,7 +20,7 @@ class config {
 			'display_errors'=>0,
 			'timezone'=>'UTC',
 			'request_method_format'=>'%c%a%mAction', // %c called method, %a ajax, %m request method
-			'request_methods'=>['get'=>'','post'=>'Post','put'=>'Put','delete'=>'Delete'],
+			'request_methods'=>['get'=>'','post'=>'Post','put'=>'Put','delete'=>'Delete','cli'=>'Cli'],
 			'server'=>$_SERVER,
 			'post'=>$_POST,
 			'get'=>$_GET,
@@ -32,20 +32,13 @@ class config {
 			'put'=>[],
 		];
 
-
-
 		/* merge loaded over defaults */
-		$this->data['bootstrap'] = array_replace_recursive($defaults,(array)$this->file('bootstrap'));		
+		$this->data['bootstrap'] = array_replace_recursive($defaults,(array)$this->item('bootstrap'));		
 	}
 
 	/* give me everything! */
 	public function all() {
 		return $this->data;
-	}
-
-	/* wrapper */
-	public function file($filename) {
-		return $this->item($filename);
 	}
 
 	/* these are NOT saved between requests */
@@ -66,7 +59,7 @@ class config {
 				include $config_filename;
 
 				if (!isset($config)) {
-					throw new Config_Variable_Not_Found_Exception('Config variable not found in config/'.$filename.'.php',809);
+					throw new Config_Variable_Not_Found_Exception('Config variable not found in "config/'.$filename.'.php"',800);
 				}
 
 				$base_config = $config;
@@ -77,7 +70,7 @@ class config {
 					include $config_filename;
 
 					if (!isset($config)) {
-						throw new Config_Variable_Not_Found_Exception('Config variable not found in config/'.$env_value.'/'.$filename.'.php',810);
+						throw new Config_Variable_Not_Found_Exception('Config variable not found in "config/'.$env_value.'/'.$filename.'.php"',801);
 					}
 
 					$env_config = $config;

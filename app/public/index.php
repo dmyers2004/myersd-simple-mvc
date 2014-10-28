@@ -2,9 +2,9 @@
 /* load composer autoloader */
 $loader = require __DIR__.'/../vendor/autoload.php';
 
-/* define some LOW level stuff */
-define('ENV',$_SERVER['ENV']); /* this could be set VIA htaccess for example */
-define('ROOT',realpath(__DIR__.'/..')); /* where is the root of this entire application? */
+/* What environment is this server running in? */
+define('ENV',isset($_SERVER['ENV']) ? $_SERVER['ENV'] : 'cli');
+define('ROOT',realpath(__DIR__.'/../'));
 
 $packages = [
 	''=>'app/',
@@ -14,10 +14,10 @@ $packages = [
 /* setup our composer packages and include path for controllers, config, views */
 foreach ($packages as $name=>$path) {
 	/* composer PSR4 autoload */
-	$loader->addpsr4($name, realpath(__DIR__.'/../'.$path));
-	
-	/* controller, view, config autoload */
-	set_include_path(get_include_path().PATH_SEPARATOR.realpath(ROOT.'/'.$path.'/'.$name));
+	$loader->addpsr4($name, ROOT.'/'.$path);
+
+	/* controller, view, config (include style) autoload */
+	set_include_path(get_include_path().PATH_SEPARATOR.ROOT.'/'.$path);
 }
 
 $c = new \myersd\core\container();
@@ -35,6 +35,9 @@ $c->log = $c->shared(function($c) { return new \myersd\libraries\log($c); });
 $c->session = $c->shared(function($c) { return new \myersd\libraries\session($c); });
 $c->view = $c->shared(function($c) { return new \myersd\libraries\view($c); });
 $c->validate = $c->shared(function($c) { return new \myersd\libraries\validate($c); });
+
+set_exception_handler(['\myersd\core\exceptionHandler','handleException']);
+\myersd\core\exceptionHandler::load($c);
 
 /* route and respond */
 $c->router->route()->output->display();

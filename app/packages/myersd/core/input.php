@@ -31,16 +31,30 @@ class input {
 		if ($this->data['raw_method'] == 'put') {
 			parse_str(file_get_contents('php://input'),$this->data['put']);
 		}
+		
+		$this->_prep();
 	}
 
-	public function prep_uri($uri=NULL) {
+	protected function _prep($uri=NULL) {
 		$uri = ($uri) ? $uri : $this->data['server']['REQUEST_URI'];
-
+	
 		/* get the uri (uniform resource identifier) and preform some basic clean up */
 		$this->data['uri'] = filter_var(trim($uri,'/'),FILTER_SANITIZE_URL);
 
 		/* ok let's split these up for futher processing */
-		return $this->data['segments'] = explode('/',$this->data['uri']);
+		$this->data['segments'] = explode('/',$this->data['uri']);
+	}
+
+	public function segments($uri=NULL) {
+		if ($uri != NULL) {
+			$this->_prep($uri);
+		}
+	
+		return $this->data['segments'];
+	}
+	
+	public function uri() {
+		return $this->data['uri'];
 	}
 
 	public function base_url() {

@@ -40,7 +40,7 @@ class validate {
 			$filename = __DIR__.'/validate/'.$i.'.php';
 
 			if (!file_exists($filename)) {
-				throw new Validation_File_Not_Found_Exception('Could Not Find Validate File '.$file,811);
+				throw new Validation_File_Not_Found_Exception('Could Not Find Validate File "'.$file.'"',807);
 			}
 
 			include $filename;
@@ -214,7 +214,7 @@ class validate {
 					}
 				/* rule not found */
 				} else {
-					throw new Validation_Not_Found_Exception('Could Not Validate Against '.$rule,810);
+					throw new Validation_Not_Found_Exception('Could Not Validate Against "'.$rule.'"',808);
 				}
 
 				/* FAIL! */

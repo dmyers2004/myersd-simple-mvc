@@ -58,5 +58,9 @@ class mainController extends controller {
 		var_dump($this->app->app->restful());
 		var_dump($this->app->app->root());
 	}
+	
+	public function indexCliAction() {
+		echo 'Hello World!'.chr(10);
+	}
 
 } /* end mainController */

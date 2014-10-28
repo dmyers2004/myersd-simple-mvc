@@ -14,7 +14,7 @@ class container {
 
 	public function __get($k){
 		if (!isset($this->s[$k])) {
-			throw new InvalidArgumentException(sprintf('Value "%s" is not defined.', $k));
+			throw new InvalidArgumentException(sprintf('Value "%s" is not defined.', $k),802);
 		}
 
 		return is_callable($this->s[$k]) ? $this->s[$k]($this) : $this->s[$k];
