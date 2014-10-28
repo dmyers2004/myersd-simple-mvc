@@ -59,7 +59,7 @@ class router {
 		}
 
 		/* try to instantiate the controller */
-		$this->controller = new $this->data['classname']($this->c);
+		$controller = new $this->data['classname']($this->c);
 
 		/* what method are we going to try to call? */
 		$this->data['called'] = $this->c->config->item('bootstrap','request_method_format');
@@ -68,15 +68,18 @@ class router {
 		$this->data['called'] = str_replace('%a',$this->c->input->ajax(),$this->data['called']);
 		$this->data['called'] = str_replace('%m',$this->c->input->method(),$this->data['called']);
 
-		if (method_exists($this->controller,'_remap')) {
+		if (method_exists($controller,'_remap')) {
 			$this->data['parameters'] = [$this->data['called'],$this->data['parameters']];
 			$this->data['called'] = '_remap';
 		}
 
 		/* does that method even exist? */
-		if (method_exists($this->controller, $this->data['called'])) {
+		if (method_exists($controller, $this->data['called'])) {
+			/*attach this to the application instance */
+			$this->c->app->controller($controller);
+		
 			/* call the method and echo what's returned */
-			echo call_user_func_array([$this->controller,$this->data['called']],$this->data['parameters']);
+			echo call_user_func_array([$controller,$this->data['called']],$this->data['parameters']);
 		} else {
 			/* no throw a error */
 			throw new Method_Not_Found_Exception('Method '.$this->data['called'].' Not Found',801);
@@ -85,8 +88,8 @@ class router {
 		return $this->c;
 	} /* end route */
 
-	public function controller_obj() {
-		return $this->controller;
+	public function called() {
+		return $this->data['called'];
 	}
 
 	public function classname() {

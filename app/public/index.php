@@ -24,9 +24,9 @@ $c = new \myersd\core\container();
 
 $c->config = $c->shared(function($c) { return new \myersd\core\config($c); });
 $c->app = $c->shared(function($c) { return new \myersd\core\app($c); });
+$c->event = $c->shared(function($c) { return new \myersd\core\event($c); });
 
 $c->router = $c->shared(function($c) { return new \myersd\core\router($c); });
-$c->event = $c->shared(function($c) { return new \myersd\core\event($c); });
 
 $c->input = $c->shared(function($c) { return new \myersd\core\input($c); });
 $c->output = $c->shared(function($c) { return new \myersd\core\output($c); });

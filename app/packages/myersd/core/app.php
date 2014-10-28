@@ -22,7 +22,7 @@ class app {
 		ini_set('display_errors',$this->c->config->item('bootstrap','display_errors'));
 	}
 	
-	public function controller($obj=NULL) {
+	public function controller(&$obj=NULL) {
 		if ($obj == NULL) {
 			return $this->controller;
 		}

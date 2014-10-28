@@ -111,8 +111,8 @@ class output {
 			}
 		}
 
-		if (method_exists($this->c->router->controller_obj(),'_output')) {
-			$this->c->router->controller_obj()->_output($output);
+		if (method_exists($this->c->app->controller(),'_output')) {
+			$this->c->app->controller()->_output($output);
 		} else {
 			echo $output;
 		}

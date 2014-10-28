@@ -11,7 +11,7 @@ class config {
 
 	public function __construct(container &$container) {
 		$this->c = $container;
-		
+
 		$defaults = [
 			'environment'=>ENV,
 			'default_controller'=>'main',
@@ -32,27 +32,32 @@ class config {
 			'put'=>[],
 		];
 
+
+
 		/* merge loaded over defaults */
 		$this->data['bootstrap'] = array_replace_recursive($defaults,(array)$this->file('bootstrap'));		
 	}
 
+	/* give me everything! */
 	public function all() {
 		return $this->data;
 	}
 
+	/* wrapper */
 	public function file($filename) {
 		return $this->item($filename);
 	}
-	
+
+	/* these are NOT saved between requests */
 	public function set($filename,$field) {
 		$this->data[$filename][$field];
-		
+
 		return $this;
 	}
-	
+
 	public function item($filename,$field=NULL,$default=NULL) {
 		$env_value = ENV;
-	
+
 		if (!isset($this->data[$filename])) {
 			/* default empty */
 			$base_config = $env_config = [];
