@@ -1,15 +1,7 @@
 <?php
-
 namespace myersd\libraries;
 
-use myersd\core\container;
-
-class Validation_Forged_Exception extends \Exception {}
-class Validation_Not_Found_Exception extends \Exception {}
-class Validation_File_Not_Found_Exception extends \Exception {}
-
-class validate {
-	protected $c;
+class validate extends \myersd\core\base {
 	protected $attached = [];
 	protected $_field_data = [];
 	protected $_error_array = [];
@@ -24,9 +16,7 @@ class validate {
 	protected $internal = ['string']; /* internal already known libraries */
 	protected $errors_detailed = []; /* used for debugging */
 
-	public function __construct(container &$container) {
-		$this->c = $container;
-
+	public function init() {
 		$this->config = $this->c->config->item('validate');
 
 		$this->json_options = $this->c->config->item('validate','json_options',JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT);
@@ -40,7 +30,7 @@ class validate {
 			$filename = __DIR__.'/validate/'.$i.'.php';
 
 			if (!file_exists($filename)) {
-				throw new Validation_File_Not_Found_Exception('Could Not Find Validate File "'.$file.'"',807);
+				throw new \Exception('Could Not Find Validate File "'.$file.'"',807);
 			}
 
 			include $filename;
@@ -214,7 +204,7 @@ class validate {
 					}
 				/* rule not found */
 				} else {
-					throw new Validation_Not_Found_Exception('Could Not Validate Against "'.$rule.'"',808);
+					throw new \Exception('Could Not Validate Against "'.$rule.'"',808);
 				}
 
 				/* FAIL! */
@@ -233,7 +223,7 @@ class validate {
 
 					/* they have the die on fail on then die now */
 					if ($this->die_on_failure) {
-						throw new Validation_Forged_Exception('Validation Forgery Detected',809);
+						throw new \Exception('Validation Forgery Detected',809);
 					}
 
 					break;

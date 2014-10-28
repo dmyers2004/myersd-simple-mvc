@@ -1,15 +1,10 @@
 <?php
 namespace myersd\libraries;
 
-use myersd\core\container;
-
-class session {
-	protected $c;
+class session extends \myersd\core\base {
 	protected $flash_key = 'FLASHKEY';
 
-	public function __construct(container &$container) {
-		$this->c = $container;
-
+	public function init() {
 		session_set_cookie_params(
 			$this->container->config->item('session','sess_cookie_lifetime'),
 			$this->container->config->item('session','cookie_path'),

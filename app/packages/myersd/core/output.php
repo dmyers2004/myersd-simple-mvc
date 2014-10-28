@@ -1,16 +1,13 @@
 <?php
 namespace myersd\core;
 
-class output {
-	protected $c;
+class output extends \myersd\core\base {
 	protected $final_output = '';
 	protected $headers = [];
 	protected $mimes = [];
 	protected $mime_type = 'text/html';
 
-	public function __construct(container &$container) {
-		$this->c = &$container;
-
+	public function init() {
 		$this->mimes = $this->c->config->item('mimes','mimes');
 	}
 

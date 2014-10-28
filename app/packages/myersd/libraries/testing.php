@@ -1,16 +1,10 @@
 <?php
 namespace myersd\libraries;
 
-use myersd\core\container;
-
-class testing {
+class testing extends \myersd\core\base {
 	public $results = [];
 	public $strict = TRUE;
 
-	public function __construct(container &$container) {
-		$this->c = $container;
-	}
-	
 	public function run($test, $expected = TRUE, $test_name = 'undefined', $notes = '') {
 		if (substr($expected,0,4) == 'is_a') { /* is_a[foobar] */
 			$class_name = substr($expected,5,-1);

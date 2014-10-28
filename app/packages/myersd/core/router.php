@@ -1,18 +1,7 @@
 <?php
 namespace myersd\core;
 
-class Controller_Not_Found_Exception extends \Exception {}
-class Method_Not_Found_Exception extends \Exception {}
-
-class router {
-	protected $c;
-	protected $data = [];
-	protected $controller;
-
-	public function __construct(container &$container) {
-		$this->c = $container;
-	}
-
+class router extends \myersd\core\base {
 	public function route($uri=NULL) {
 		/* have the input object prep/save the uri */
 		$segs = $this->c->input->segments($uri);
@@ -55,7 +44,7 @@ class router {
 
 		/* was a class loaded */
 		if (!class_exists($this->data['classname'])) {
-			throw new Controller_Not_Found_Exception('Controller File "'.$this->data['classname'].'.php" Not Found',803);
+			throw new \Exception('Controller File "'.$this->data['classname'].'.php" Not Found',803);
 		}
 
 		/* try to instantiate the controller */
@@ -82,7 +71,7 @@ class router {
 			echo call_user_func_array([$controller,$this->data['called']],$this->data['parameters']);
 		} else {
 			/* no throw a error */
-			throw new Method_Not_Found_Exception('Method "'.$this->data['called'].'" Not Found',804);
+			throw new \Exception('Method "'.$this->data['called'].'" Not Found',804);
 		}
 
 		return $this->c;

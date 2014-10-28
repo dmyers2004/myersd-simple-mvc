@@ -1,19 +1,7 @@
 <?php
-
 namespace myersd\libraries;
 
-use myersd\core\container;
-
-class View_Not_Found_Exception extends \Exception { }
-
-class view {
-	protected $c;
-	protected $data = [];
-
-	public function __construct(container &$container) {
-		$this->c = $container;
-	}
-
+class view extends \myersd\core\base {
 	public function data($name=NULL,$value='#FOOBAR#') {
 		$return = $this;
 
@@ -53,7 +41,7 @@ class view {
 			$_mvc_output = ob_get_clean();
 		} else {
 			/* simply error and exit */
-			throw new View_Not_Found_Exception('View File "views/'.$_mvc_view_name.'.php" Not Found',810);
+			throw new \Exception('View File "views/'.$_mvc_view_name.'.php" Not Found',810);
 		}
 
 		if ($_mvc_var_name != NULL) {

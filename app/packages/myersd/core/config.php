@@ -3,8 +3,6 @@ namespace myersd\core;
 
 use myersd\core\container;
 
-class Config_Variable_Not_Found_Exception extends \Exception { }
-
 class config extends \myersd\core\base {
 	public function init() {
 		$defaults = [
@@ -54,7 +52,7 @@ class config extends \myersd\core\base {
 				include $config_filename;
 
 				if (!isset($config)) {
-					throw new Config_Variable_Not_Found_Exception('Config variable not found in "config/'.$filename.'.php"',800);
+					throw new \Exception('Config variable not found in "config/'.$filename.'.php"',800);
 				}
 
 				$base_config = $config;

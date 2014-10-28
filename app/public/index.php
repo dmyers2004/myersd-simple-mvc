@@ -21,7 +21,7 @@ foreach ($packages as $name=>$path) {
 	set_include_path(get_include_path().PATH_SEPARATOR.ROOT.'/'.$path);
 }
 
-$c = new \myersd\core\container;
+$c = new \myersd\core\container();
 
 $c->config = $c->shared(function($c) { return new \myersd\core\config($c); });
 $c->app = $c->shared(function($c) { return new \myersd\core\app($c); });

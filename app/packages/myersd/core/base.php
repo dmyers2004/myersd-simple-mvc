@@ -1,6 +1,8 @@
 <?php
 namespace myersd\core;
 
+use myersd\core\container;
+
 class base {
 	protected $c;
 	protected $data = [];

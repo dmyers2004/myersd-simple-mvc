@@ -1,14 +1,10 @@
 <?php
 namespace myersd\core;
 
-class input {
-	protected $c;
-	protected $data = [];
+class input extends \myersd\core\base {
 	protected $capture = ['server','post','get','cookie','env','files','request','put'];
 
-	public function __construct(container &$container) {
-		$this->c = $container;
-
+	public function init() {
 		foreach ($this->capture as $var) {
 			$this->data[$var] = $this->c->config->item('bootstrap',$var);
 		}

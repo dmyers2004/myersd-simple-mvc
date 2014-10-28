@@ -1,23 +1,20 @@
 <?php
 // http://fabien.potencier.org/article/17/on-php-5-3-lambda-functions-and-closures
-
 namespace myersd\core;
 
-class InvalidArgumentException extends \Exception {}
-
 class container {
-	protected $s = [];
+	protected $data = [];
 
-	public function __set($k,$c){
-		$this->s[$k]=$c;
+	public function __set($key,$c){
+		$this->data[$key]=$c;
 	}
 
-	public function __get($k){
-		if (!isset($this->s[$k])) {
-			throw new InvalidArgumentException(sprintf('Value "%s" is not defined.', $k),802);
+	public function __get($key){
+		if (!isset($this->data[$key])) {
+			throw new \Exception(sprintf('Value "%s" is not defined.', $key),802);
 		}
 
-		return is_callable($this->s[$k]) ? $this->s[$k]($this) : $this->s[$k];
+		return is_callable($this->data[$key]) ? $this->data[$key]($this) : $this->data[$key];
 	}
 
 	public function shared($callable) {

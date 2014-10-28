@@ -1,6 +1,6 @@
 <?php 
 
-class url {
+class url extends \myersd\core\base {
 
 	/* redirect - cuz you always need one */
 	public function redirect($url='/') {

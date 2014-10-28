@@ -1,10 +1,7 @@
 <?php
 namespace myersd\libraries;
 
-use myersd\core\container;
-
-class log {
-	protected $c;
+class log extends \myersd\core\base {
 	protected $log_level = 0;
 	protected $log_file;
 	protected $log_format;
@@ -31,9 +28,7 @@ class log {
 		'EMERGENCY'	=> 600,
 	];
 
-	public function __construct(container &$container) {
-		$this->c = $container;
-
+	public function init() {
 		$this->log_level = $this->c->config->item('log','log_level');
 		$this->log_file = $this->c->app->root().$this->c->config->item('log','log_file');
 		$this->log_format = $this->c->config->item('log','log_format','Y-m-d H:i:s');
