@@ -1,12 +1,4 @@
 {
-		"require": {
-				"jumplead/mongoqb": "*",
-				"guzzlehttp/guzzle": "~5.0",
-				"j4mie/paris": "dev-master",
-				"filp/whoops": "~1.0",
-				"brick/event": "dev-master",
-				"werx/config": "dev-master",
-				"teacup/log": "dev-master",
-				"sokil/php-mongo": "dev-master"
-		}
+	"require": {
+	}
 }

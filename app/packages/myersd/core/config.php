@@ -1,8 +1,6 @@
 <?php
 namespace myersd\core;
 
-use myersd\core\container;
-
 class config extends \myersd\core\base {
 	public function init() {
 		$defaults = [
